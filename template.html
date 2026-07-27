@@ -17,6 +17,12 @@
     --crit:#B4402B; --crit-tint:#FBEAE6;
     --neutral:#767F92; --neutral-tint:#EEF0F3;
     --cat1:#2A78D6; --cat2:#EB6834; --cat3:#1BAF7A; --cat4:#9B7FD4;
+    --tile-blue:#DCEBFB; --tile-blue-line:#AFCEF2;
+    --tile-green:#DDF4E3; --tile-green-line:#A9E2BB;
+    --tile-amber:#FCEFCF; --tile-amber-line:#F2D18C;
+    --tile-pink:#FBE1EC; --tile-pink-line:#F0B7D0;
+    --tile-purple:#E9E0FA; --tile-purple-line:#CBB7F2;
+    --tile-teal:#D8F3EF; --tile-teal-line:#9EDFD6;
     --shadow: 0 1px 2px rgba(16,24,39,0.04), 0 8px 24px -12px rgba(16,24,39,0.12);
     --radius-md:10px; --radius-lg:14px;
   }
@@ -32,6 +38,12 @@
       --crit:#E27B62; --crit-tint:#3A1F19;
       --neutral:#8B94A8; --neutral-tint:#1B2233;
       --cat1:#3987E5; --cat2:#D95926; --cat3:#199E70; --cat4:#B39DE0;
+      --tile-blue:#152E47; --tile-blue-line:#2C557E;
+      --tile-green:#123723; --tile-green-line:#215C3B;
+      --tile-amber:#3A2C10; --tile-amber-line:#6B5019;
+      --tile-pink:#391F2A; --tile-pink-line:#69334E;
+      --tile-purple:#281F44; --tile-purple-line:#473771;
+      --tile-teal:#0F332E; --tile-teal-line:#1E5750;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
     }
   }
@@ -46,6 +58,12 @@
     --crit:#E27B62; --crit-tint:#3A1F19;
     --neutral:#8B94A8; --neutral-tint:#1B2233;
     --cat1:#3987E5; --cat2:#D95926; --cat3:#199E70; --cat4:#B39DE0;
+    --tile-blue:#152E47; --tile-blue-line:#2C557E;
+    --tile-green:#123723; --tile-green-line:#215C3B;
+    --tile-amber:#3A2C10; --tile-amber-line:#6B5019;
+    --tile-pink:#391F2A; --tile-pink-line:#69334E;
+    --tile-purple:#281F44; --tile-purple-line:#473771;
+    --tile-teal:#0F332E; --tile-teal-line:#1E5750;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
   }
   :root[data-theme="light"]{
@@ -59,6 +77,12 @@
     --crit:#B4402B; --crit-tint:#FBEAE6;
     --neutral:#767F92; --neutral-tint:#EEF0F3;
     --cat1:#2A78D6; --cat2:#EB6834; --cat3:#1BAF7A; --cat4:#9B7FD4;
+    --tile-blue:#DCEBFB; --tile-blue-line:#AFCEF2;
+    --tile-green:#DDF4E3; --tile-green-line:#A9E2BB;
+    --tile-amber:#FCEFCF; --tile-amber-line:#F2D18C;
+    --tile-pink:#FBE1EC; --tile-pink-line:#F0B7D0;
+    --tile-purple:#E9E0FA; --tile-purple-line:#CBB7F2;
+    --tile-teal:#D8F3EF; --tile-teal-line:#9EDFD6;
   }
 
   *{ box-sizing:border-box; }
@@ -120,6 +144,12 @@
 
   .kpi-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:14px; }
   .kpi{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; box-shadow:var(--shadow); }
+  .tile-blue{ background:var(--tile-blue); border-color:var(--tile-blue-line); }
+  .tile-green{ background:var(--tile-green); border-color:var(--tile-green-line); }
+  .tile-amber{ background:var(--tile-amber); border-color:var(--tile-amber-line); }
+  .tile-pink{ background:var(--tile-pink); border-color:var(--tile-pink-line); }
+  .tile-purple{ background:var(--tile-purple); border-color:var(--tile-purple-line); }
+  .tile-teal{ background:var(--tile-teal); border-color:var(--tile-teal-line); }
   .kpi-label{ font-size:11.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-500); }
   .kpi-value{ font-family:'Plex Mono', monospace; font-weight:600; font-size:24px; color:var(--ink-900); margin-top:8px; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
   .kpi-value small{ font-size:14px; font-weight:500; color:var(--ink-500); margin-left:2px; }
@@ -158,7 +188,7 @@
   .section-head p{ margin:3px 0 0; font-size:12.5px; color:var(--ink-500); }
 
   .cat-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
-  .cat-card{ background:var(--surface-1); border:1px solid var(--border); border-top:3px solid var(--cat-color, var(--accent)); border-radius:var(--radius-md); padding:16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px; }
+  .cat-card{ background:color-mix(in srgb, var(--cat-color, var(--accent)) 10%, var(--surface-1)); border:1px solid color-mix(in srgb, var(--cat-color, var(--accent)) 30%, var(--border)); border-top:3px solid var(--cat-color, var(--accent)); border-radius:var(--radius-md); padding:16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px; }
   .cat-card.not-started{ border-top-style:dashed; border-top-color:var(--border-strong); opacity:.82; }
   .cat-card-top{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
   .cat-tag{ font-family:'Plex Mono',monospace; font-size:11px; font-weight:600; color:var(--cat-color, var(--ink-500)); letter-spacing:.03em; }
@@ -259,9 +289,6 @@
     .review-card{ box-shadow:none; border:none; }
   }
 
-  .glossary{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px 20px; font-size:12px; color:var(--ink-500); background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; }
-  .glossary dt{ font-family:'Plex Mono',monospace; font-weight:600; color:var(--ink-700); }
-  .glossary dd{ margin:1px 0 0; }
   .page-footer{ display:flex; justify-content:space-between; gap:16px; margin-top:18px; font-size:12px; color:var(--ink-400); flex-wrap:wrap; }
 
   /* ---- Drill-down modal ---- */
@@ -296,11 +323,10 @@
   @media (max-width: 980px){
     .kpi-grid{ grid-template-columns:repeat(2,1fr); }
     .cat-grid{ grid-template-columns:repeat(2,1fr); }
-    .glossary{ grid-template-columns:repeat(2,1fr); }
     .kpi-line{ grid-template-columns:1fr; gap:6px; }
   }
   @media (max-width: 620px){
-    .kpi-grid, .cat-grid, .glossary{ grid-template-columns:1fr; }
+    .kpi-grid, .cat-grid{ grid-template-columns:1fr; }
     .bar-row{ grid-template-columns:110px 1fr 64px; }
     .eligible-banner{ flex-direction:column; align-items:flex-start; }
     .eligible-right{ align-self:flex-end; }
@@ -314,7 +340,7 @@
     <div>
       <div class="masthead-eyebrow">Regional Office · Salem — EPFO</div>
       <h1>Vishwas Performance Dashboard</h1>
-      <p>Enforcement Officer and Dealing Assistant performance under VISHWAS, 2026, with a ready weekly pack for Zonal Office review. Click any box to see the specific cases behind it.</p>
+      <p>Click any box to see the specific cases behind it.</p>
     </div>
     <div class="asof">
       <span class="asof-badge"><span class="asof-dot"></span> Data as of <span id="asof-date">—</span></span>
@@ -336,8 +362,7 @@
         <div class="eligible-left">
           <div class="eligible-icon">✓</div>
           <div>
-            <div class="eligible-title">Vishwas-eligible cases</div>
-            <div class="eligible-desc">Only cases with §7Q interest <b>fully remitted</b> qualify under the scheme — click to see exactly which, with category and officer.</div>
+            <div class="eligible-title">7Q Remitted Cases</div>
           </div>
         </div>
         <div class="eligible-right">
@@ -347,24 +372,24 @@
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi clickable" id="ov-total-box">
+        <div class="kpi clickable tile-blue" id="ov-total-box">
           <div class="kpi-label">Eligible establishments</div>
           <div class="kpi-value" id="ov-total">—</div>
           <div class="kpi-sub" id="ov-total-sub"></div>
         </div>
-        <div class="kpi clickable" id="ov-outreach-box">
+        <div class="kpi clickable tile-green" id="ov-outreach-box">
           <div class="kpi-label">Outreach done</div>
           <div class="kpi-value" id="ov-outreach">—</div>
           <div class="kpi-sub" id="ov-outreach-sub">emailed or SMS&#8209;ed</div>
           <div class="kpi-bar"><div class="kpi-bar-fill good" id="ov-outreach-bar" style="width:0%"></div></div>
         </div>
-        <div class="kpi clickable" id="ov-da-box">
+        <div class="kpi clickable tile-amber" id="ov-da-box">
           <div class="kpi-label">DA assigned</div>
           <div class="kpi-value" id="ov-da">—</div>
           <div class="kpi-sub" id="ov-da-sub"></div>
           <div class="kpi-bar"><div class="kpi-bar-fill warn" id="ov-da-bar" style="width:0%"></div></div>
         </div>
-        <div class="kpi clickable" id="ov-apps-box">
+        <div class="kpi clickable tile-pink" id="ov-apps-box">
           <div class="kpi-label">Applications received</div>
           <div class="kpi-value" id="ov-apps">—</div>
           <div class="kpi-sub">EO target achieved</div>
@@ -379,14 +404,14 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Progress by category</h2><p>Each of the four case categories, with outreach, DA-assignment and application status.</p></div>
+        <div><h2>Progress by category</h2></div>
       </div>
       <div class="cat-grid" id="cat-grid"></div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Where cases stand in the pipeline</h2><p>Every eligible case moves left to right. Click a stage to see which cases are in it.</p></div>
+        <div><h2>Progress Summary</h2></div>
       </div>
       <div class="chart-card">
         <div id="funnel"></div>
@@ -398,20 +423,20 @@
   <section class="tabpanel" id="tab-eo">
     <section class="section">
       <div class="section-head">
-        <div><h2>EO target achievement</h2><p>Target is met the moment an establishment's Vishwas application is received in office — everything after that is the DA/SS/APFC's stage, not the EO's.</p></div>
+        <div><h2>EO Progress</h2></div>
       </div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="kpi clickable" id="eo-target-box">
-          <div class="kpi-label">Office-wide target achieved</div>
+        <div class="kpi clickable tile-blue" id="eo-target-box">
+          <div class="kpi-label">Target Achieved</div>
           <div class="kpi-value" id="eo-target">—</div>
           <div class="kpi-sub">applications received ÷ eligible cases</div>
         </div>
-        <div class="kpi clickable" id="eo-outreach-box">
+        <div class="kpi clickable tile-green" id="eo-outreach-box">
           <div class="kpi-label">Outreach coverage</div>
           <div class="kpi-value" id="eo-outreach">—</div>
           <div class="kpi-sub">at least one contact made</div>
         </div>
-        <div class="kpi clickable" id="eo-sms-box">
+        <div class="kpi clickable tile-teal" id="eo-sms-box">
           <div class="kpi-label">Follow-up (SMS) coverage</div>
           <div class="kpi-value" id="eo-sms">—</div>
           <div class="kpi-sub">office-wide</div>
@@ -421,7 +446,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Caseload &amp; outreach by officer</h2><p>Establishments assigned per division, split by category. Click a row for the officer, or a segment for that category only.</p></div>
+        <div><h2>EO wise Workload</h2><p>Establishments assigned per division, split by category. Click a row for the officer, or a segment for that category only.</p></div>
       </div>
       <div class="chart-card">
         <div class="chart-legend">
@@ -435,7 +460,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Officer-wise detail</h2><p>Sortable — click a column header to sort, or a row to see that officer's cases.</p></div>
+        <div><h2>EO wise Progress</h2><p>Sortable — click a column header to sort, or a row to see that officer's cases.</p></div>
       </div>
       <div class="table-card">
         <div class="table-toolbar">
@@ -480,20 +505,20 @@
         <span>DA-wise <b>turnaround time</b> (how fast an application is processed once received) needs one more field in the register — a "date forwarded by DA to SS" — before it can be measured. Until then, this tab tracks <b>DA assignment coverage</b>, which is measurable today.</span>
       </div>
       <div class="section-head">
-        <div><h2>DA assignment coverage</h2><p>Whether an establishment's file has a named Dealing Assistant yet, by category.</p></div>
+        <div><h2>DA Assignment Coverage</h2></div>
       </div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="kpi clickable" id="da-total-box">
+        <div class="kpi clickable tile-amber" id="da-total-box">
           <div class="kpi-label">Cases with a DA assigned</div>
           <div class="kpi-value" id="da-total">—</div>
           <div class="kpi-sub" id="da-total-sub"></div>
         </div>
-        <div class="kpi clickable" id="da-count-box">
+        <div class="kpi clickable tile-purple" id="da-count-box">
           <div class="kpi-label">Active Dealing Assistants</div>
           <div class="kpi-value" id="da-count">—</div>
           <div class="kpi-sub">currently named in the register</div>
         </div>
-        <div class="kpi clickable" id="da-cats-box">
+        <div class="kpi clickable tile-teal" id="da-cats-box">
           <div class="kpi-label">Categories with DA assignment started</div>
           <div class="kpi-value" id="da-cats">—</div>
           <div class="kpi-sub" id="da-cats-sub"></div>
@@ -503,14 +528,14 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>By Dealing Assistant</h2><p>Caseload currently assigned to each DA. Click a card for the case list. Processing-time KPIs will appear here once dates are logged.</p></div>
+        <div><h2>DA wise Workload and Progress</h2><p>Caseload currently assigned to each DA. Click a card for the case list. Processing-time KPIs will appear here once dates are logged.</p></div>
       </div>
       <div class="da-grid" id="da-grid"></div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div><h2>By category</h2><p>DA assignment has only started in one of the three active categories.</p></div>
+        <div><h2>DA level – Category wise</h2></div>
       </div>
       <div class="chart-card">
         <div id="da-cat-bars"></div>
@@ -560,19 +585,6 @@
       </div>
       <div class="kpi-scorecard" id="kpi-scorecard"></div>
     </div>
-  </section>
-
-  <section class="section" style="margin-top:34px;">
-    <dl class="glossary">
-      <div><dt>§14B</dt><dd>Damages assessed under Section 14B, EPF &amp; MP Act</dd></div>
-      <div><dt>§7Q</dt><dd>Interest assessed under Section 7Q, EPF &amp; MP Act</dd></div>
-      <div><dt>Vishwas</dt><dd>One-time settlement scheme for pending §14B / §7Q dues</dd></div>
-      <div><dt>DA</dt><dd>Dealing Assistant handling the establishment file</dd></div>
-      <div><dt>SS</dt><dd>Section Supervisor — recommends after DA processing</dd></div>
-      <div><dt>APFC</dt><dd>Assistant PF Commissioner — final approving authority</dd></div>
-      <div><dt>EO</dt><dd>Enforcement Officer — division in-charge, does outreach</dd></div>
-      <div><dt>RRC</dt><dd>Recovery certificate for a finalised, unpaid 14B order</dd></div>
-    </dl>
   </section>
 
   <footer class="page-footer">
@@ -808,7 +820,7 @@ function openDrillDA(name){
 /* ================= OVERVIEW TAB ================= */
 document.getElementById('eligible-count').innerHTML = VISHWAS_ELIGIBLE.length + '<small>Category I</small>';
 bindClickable(document.getElementById('eligible-box'), () => openDrill(
-  'Vishwas-eligible cases', `${VISHWAS_ELIGIBLE.length} case${VISHWAS_ELIGIBLE.length===1?'':'s'} — §7Q fully remitted (Category I only; the only category with reliable interest-remittance data today)`,
+  '7Q Remitted Cases', `${VISHWAS_ELIGIBLE.length} case${VISHWAS_ELIGIBLE.length===1?'':'s'} — §7Q fully remitted (Category I only; the only category with reliable interest-remittance data today)`,
   VISHWAS_ELIGIBLE, 'No cases currently have §7Q fully remitted.'
 ));
 
@@ -1003,10 +1015,11 @@ document.getElementById('da-cats-sub').textContent = catsWithDA.length
   : 'Not started in any category yet';
 bindClickable(document.getElementById('da-cats-box'), () => openDrill('DA assigned', `${DA_LIST.length} of ${GRAND.total} cases have a named Dealing Assistant`, DA_LIST));
 
+const DA_TILE_COLORS = ['tile-blue', 'tile-green', 'tile-amber', 'tile-purple', 'tile-teal', 'tile-pink'];
 const daGrid = document.getElementById('da-grid');
-DAS.forEach(da => {
+DAS.forEach((da, i) => {
   const el = document.createElement('div');
-  el.className = 'da-card';
+  el.className = 'da-card ' + DA_TILE_COLORS[i % DA_TILE_COLORS.length];
   el.innerHTML = `
     <div class="da-name">${da.name}</div>
     <div class="da-count">${da.cases}</div>
