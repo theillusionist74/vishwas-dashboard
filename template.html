@@ -112,6 +112,12 @@
   .tabpanel.active{ display:block; animation:fadein .15s ease; }
   @keyframes fadein{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);} }
 
+  /* ---- Clickable boxes ---- */
+  .clickable{ cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+  .clickable:hover{ transform:translateY(-1px); box-shadow:0 6px 18px -6px rgba(16,24,39,0.22); border-color:var(--border-strong); }
+  .clickable:active{ transform:translateY(0); }
+  .click-hint{ display:inline-flex; align-items:center; gap:3px; font-size:10.5px; color:var(--accent); font-weight:600; margin-top:9px; }
+
   .kpi-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:14px; }
   .kpi{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; box-shadow:var(--shadow); }
   .kpi-label{ font-size:11.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-500); }
@@ -123,6 +129,22 @@
   .kpi-bar-fill.good{ background:var(--good); }
   .kpi-bar-fill.warn{ background:var(--warn); }
   .kpi-bar-fill.crit{ background:var(--crit); }
+
+  /* ---- Eligible-cases banner ---- */
+  .eligible-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    background:linear-gradient(135deg, var(--good-tint), var(--surface-1) 70%);
+    border:1px solid var(--good); border-radius:var(--radius-lg); padding:18px 22px;
+    margin-bottom:14px; box-shadow:var(--shadow);
+  }
+  .eligible-left{ display:flex; align-items:center; gap:16px; }
+  .eligible-icon{ flex:none; width:42px; height:42px; border-radius:11px; background:var(--good); color:var(--surface-1); display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:700; }
+  .eligible-title{ font-size:14px; font-weight:700; color:var(--ink-900); }
+  .eligible-desc{ font-size:12.5px; color:var(--ink-500); margin-top:2px; max-width:54ch; }
+  .eligible-right{ display:flex; align-items:center; gap:10px; }
+  .eligible-count{ font-family:'Plex Mono',monospace; font-weight:700; font-size:30px; color:var(--good); text-align:right; line-height:1; }
+  .eligible-count small{ display:block; font-family:'Plex Sans',sans-serif; font-size:10.5px; font-weight:600; color:var(--ink-500); text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
+  .eligible-arrow{ font-size:18px; color:var(--good); }
 
   .callout{ display:flex; align-items:center; gap:12px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:13px 16px; margin-bottom:28px; font-size:13.5px; color:var(--ink-700); }
   .callout-icon{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Plex Mono',monospace; font-weight:600; font-size:13px; }
@@ -153,8 +175,9 @@
   .chart-legend{ display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
   .chart-legend span{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-700); }
   .chart-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
-  .bar-row{ display:grid; grid-template-columns:172px 1fr 100px; align-items:center; gap:12px; padding:5px 0; }
+  .bar-row{ display:grid; grid-template-columns:172px 1fr 100px; align-items:center; gap:12px; padding:7px 6px; border-radius:8px; }
   .bar-row + .bar-row{ border-top:1px solid var(--surface-2); }
+  .bar-row.clickable:hover{ background:var(--surface-2); transform:none; box-shadow:none; border-color:transparent; }
   .bar-name{ font-size:13px; color:var(--ink-900); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .bar-div{ font-family:'Plex Mono',monospace; font-size:11px; color:var(--ink-500); font-weight:500; }
   .bar-track{ position:relative; height:18px; display:flex; border-radius:5px; overflow:hidden; background:var(--surface-2); }
@@ -189,12 +212,12 @@
   .meter{ flex:1; height:6px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
   .meter-fill{ height:100%; border-radius:999px; }
   .meter-pct{ font-family:'Plex Mono',monospace; font-size:12px; color:var(--ink-700); width:36px; text-align:right; }
-  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:3px 8px; border-radius:999px; font-weight:600; }
+  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:3px 8px; border-radius:999px; font-weight:600; white-space:nowrap; }
   .pill.good{ background:var(--good-tint); color:var(--good); }
   .pill.warn{ background:var(--warn-tint); color:var(--warn); }
   .pill.crit{ background:var(--crit-tint); color:var(--crit); }
   .pill.neutral{ background:var(--neutral-tint); color:var(--neutral); }
-  .pill i{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .pill i{ width:6px; height:6px; border-radius:50%; background:currentColor; flex:none; }
   .na{ color:var(--ink-400); }
   tfoot td{ padding:12px 14px; font-weight:600; color:var(--ink-900); background:var(--surface-2); border-top:1px solid var(--border-strong); font-size:13px; }
 
@@ -219,15 +242,17 @@
   .review-table th{ text-align:left; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:8px 10px; border-bottom:1px solid var(--border); }
   .review-table th.num, .review-table td.num{ text-align:right; }
   .review-table td{ padding:9px 10px; border-bottom:1px solid var(--surface-2); font-size:13px; }
+  .review-table tbody tr.clickable:hover{ background:var(--surface-2); }
   .review-table tfoot td{ font-weight:700; background:var(--surface-2); }
-  .kpi-scorecard{ display:flex; flex-direction:column; gap:10px; }
-  .kpi-line{ display:grid; grid-template-columns:1fr 90px 1.4fr 130px; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid var(--surface-2); }
-  .kpi-line:last-child{ border-bottom:none; }
+  .kpi-scorecard{ display:flex; flex-direction:column; gap:2px; }
+  .kpi-line{ display:grid; grid-template-columns:1fr 90px 1.4fr 130px; align-items:center; gap:14px; padding:10px 8px; border-bottom:1px solid var(--surface-2); border-radius:8px; }
+  .kpi-line:last-of-type{ border-bottom:none; }
   .kpi-line-title{ font-size:13px; font-weight:600; color:var(--ink-900); }
   .kpi-line-weight{ font-family:'Plex Mono',monospace; font-size:11.5px; color:var(--ink-500); text-align:center; background:var(--surface-2); border-radius:6px; padding:3px 0; }
   .kpi-line-bar{ height:7px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
   .kpi-line-bar span{ display:block; height:100%; border-radius:999px; }
   .kpi-line-status{ font-size:12px; text-align:right; }
+  .kpi-line-note{ font-size:11.5px; color:var(--ink-400); margin:-4px 0 6px 8px; }
   @media print{
     .tabbar, .asof, .callout, .print-btn{ display:none !important; }
     body{ background:#fff; color:#000; }
@@ -239,6 +264,35 @@
   .glossary dd{ margin:1px 0 0; }
   .page-footer{ display:flex; justify-content:space-between; gap:16px; margin-top:18px; font-size:12px; color:var(--ink-400); flex-wrap:wrap; }
 
+  /* ---- Drill-down modal ---- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(10,15,26,0.55); display:flex; align-items:center; justify-content:center;
+    padding:24px; z-index:200; opacity:0; pointer-events:none; transition:opacity .15s;
+  }
+  .modal-overlay.show{ opacity:1; pointer-events:auto; }
+  .modal-box{
+    background:var(--surface-1); border-radius:var(--radius-lg); box-shadow:0 24px 64px -12px rgba(0,0,0,0.45);
+    width:100%; max-width:900px; max-height:82vh; display:flex; flex-direction:column; overflow:hidden;
+    transform:translateY(8px) scale(.98); transition:transform .15s;
+  }
+  .modal-overlay.show .modal-box{ transform:translateY(0) scale(1); }
+  .modal-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 22px; border-bottom:1px solid var(--border); flex:none; }
+  .modal-head h3{ font-size:15px; }
+  .modal-head p{ margin:3px 0 0; font-size:12.5px; color:var(--ink-500); }
+  .modal-close{ appearance:none; border:none; background:var(--surface-2); color:var(--ink-500); width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:14px; flex:none; }
+  .modal-close:hover{ background:var(--neutral-tint); color:var(--ink-900); }
+  .modal-body{ overflow:auto; }
+  .modal-table{ width:100%; border-collapse:collapse; min-width:700px; }
+  .modal-table th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:9px 14px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .modal-table td{ padding:9px 14px; border-bottom:1px solid var(--surface-2); font-size:12.5px; vertical-align:middle; }
+  .modal-table tr:last-child td{ border-bottom:none; }
+  .modal-table tbody tr:hover{ background:var(--surface-2); }
+  .case-name{ font-weight:600; color:var(--ink-900); font-size:12.5px; }
+  .case-sub{ font-size:11px; color:var(--ink-500); margin-top:1px; }
+  .cat-chip{ font-family:'Plex Mono',monospace; font-size:10.5px; font-weight:700; letter-spacing:.02em; }
+  .modal-empty{ display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:56px 24px; color:var(--ink-500); font-size:13px; text-align:center; }
+  .modal-empty-icon{ font-size:26px; opacity:.45; }
+
   @media (max-width: 980px){
     .kpi-grid{ grid-template-columns:repeat(2,1fr); }
     .cat-grid{ grid-template-columns:repeat(2,1fr); }
@@ -248,6 +302,8 @@
   @media (max-width: 620px){
     .kpi-grid, .cat-grid, .glossary{ grid-template-columns:1fr; }
     .bar-row{ grid-template-columns:110px 1fr 64px; }
+    .eligible-banner{ flex-direction:column; align-items:flex-start; }
+    .eligible-right{ align-self:flex-end; }
   }
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 </style>
@@ -258,7 +314,7 @@
     <div>
       <div class="masthead-eyebrow">Regional Office · Salem — EPFO</div>
       <h1>Vishwas Performance Dashboard</h1>
-      <p>Enforcement Officer and Dealing Assistant performance under VISHWAS, 2026, with a ready weekly pack for Zonal Office review.</p>
+      <p>Enforcement Officer and Dealing Assistant performance under VISHWAS, 2026, with a ready weekly pack for Zonal Office review. Click any box to see the specific cases behind it.</p>
     </div>
     <div class="asof">
       <span class="asof-badge"><span class="asof-dot"></span> Data as of <span id="asof-date">—</span></span>
@@ -276,34 +332,48 @@
   <!-- ================= TAB 1: OVERVIEW ================= -->
   <section class="tabpanel active" id="tab-overview">
     <section class="section">
+      <div class="eligible-banner clickable" id="eligible-box">
+        <div class="eligible-left">
+          <div class="eligible-icon">✓</div>
+          <div>
+            <div class="eligible-title">Vishwas-eligible cases</div>
+            <div class="eligible-desc">Only cases with §7Q interest <b>fully remitted</b> qualify under the scheme — click to see exactly which, with category and officer.</div>
+          </div>
+        </div>
+        <div class="eligible-right">
+          <div class="eligible-count" id="eligible-count">—<small>Category I</small></div>
+          <span class="eligible-arrow">›</span>
+        </div>
+      </div>
+
       <div class="kpi-grid">
-        <div class="kpi">
+        <div class="kpi clickable" id="ov-total-box">
           <div class="kpi-label">Eligible establishments</div>
           <div class="kpi-value" id="ov-total">—</div>
           <div class="kpi-sub" id="ov-total-sub"></div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="ov-outreach-box">
           <div class="kpi-label">Outreach done</div>
           <div class="kpi-value" id="ov-outreach">—</div>
           <div class="kpi-sub" id="ov-outreach-sub">emailed or SMS&#8209;ed</div>
           <div class="kpi-bar"><div class="kpi-bar-fill good" id="ov-outreach-bar" style="width:0%"></div></div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="ov-da-box">
           <div class="kpi-label">DA assigned</div>
           <div class="kpi-value" id="ov-da">—</div>
           <div class="kpi-sub" id="ov-da-sub"></div>
           <div class="kpi-bar"><div class="kpi-bar-fill warn" id="ov-da-bar" style="width:0%"></div></div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="ov-apps-box">
           <div class="kpi-label">Applications received</div>
           <div class="kpi-value" id="ov-apps">—</div>
           <div class="kpi-sub">EO target achieved</div>
           <div class="kpi-bar"><div class="kpi-bar-fill crit" id="ov-apps-bar" style="width:0%"></div></div>
         </div>
       </div>
-      <div class="callout pos">
+      <div class="callout pos" id="outreach-callout">
         <span class="callout-icon">✓</span>
-        <span><b>All 102</b> eligible establishments have been contacted at least once (email or SMS) — outreach is complete office-wide. The gap now is conversion: getting those contacts to actually file a Vishwas application.</span>
+        <span id="outreach-callout-text"></span>
       </div>
     </section>
 
@@ -316,7 +386,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Where cases stand in the pipeline</h2><p>Every eligible case moves left to right. The office-wide bottleneck is visible at a glance.</p></div>
+        <div><h2>Where cases stand in the pipeline</h2><p>Every eligible case moves left to right. Click a stage to see which cases are in it.</p></div>
       </div>
       <div class="chart-card">
         <div id="funnel"></div>
@@ -331,17 +401,17 @@
         <div><h2>EO target achievement</h2><p>Target is met the moment an establishment's Vishwas application is received in office — everything after that is the DA/SS/APFC's stage, not the EO's.</p></div>
       </div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="kpi">
+        <div class="kpi clickable" id="eo-target-box">
           <div class="kpi-label">Office-wide target achieved</div>
           <div class="kpi-value" id="eo-target">—</div>
           <div class="kpi-sub">applications received ÷ eligible cases</div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="eo-outreach-box">
           <div class="kpi-label">Outreach coverage</div>
           <div class="kpi-value" id="eo-outreach">—</div>
           <div class="kpi-sub">at least one contact made</div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="eo-sms-box">
           <div class="kpi-label">Follow-up (SMS) coverage</div>
           <div class="kpi-value" id="eo-sms">—</div>
           <div class="kpi-sub">office-wide</div>
@@ -351,7 +421,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Caseload &amp; outreach by officer</h2><p>Establishments assigned per division, split by category — hover a segment for the exact count.</p></div>
+        <div><h2>Caseload &amp; outreach by officer</h2><p>Establishments assigned per division, split by category. Click a row for the officer, or a segment for that category only.</p></div>
       </div>
       <div class="chart-card">
         <div class="chart-legend">
@@ -365,7 +435,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>Officer-wise detail</h2><p>Sortable — click a column header.</p></div>
+        <div><h2>Officer-wise detail</h2><p>Sortable — click a column header to sort, or a row to see that officer's cases.</p></div>
       </div>
       <div class="table-card">
         <div class="table-toolbar">
@@ -413,17 +483,17 @@
         <div><h2>DA assignment coverage</h2><p>Whether an establishment's file has a named Dealing Assistant yet, by category.</p></div>
       </div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="kpi">
+        <div class="kpi clickable" id="da-total-box">
           <div class="kpi-label">Cases with a DA assigned</div>
           <div class="kpi-value" id="da-total">—</div>
-          <div class="kpi-sub">of 102 eligible cases</div>
+          <div class="kpi-sub" id="da-total-sub"></div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="da-count-box">
           <div class="kpi-label">Active Dealing Assistants</div>
           <div class="kpi-value" id="da-count">—</div>
           <div class="kpi-sub">currently named in the register</div>
         </div>
-        <div class="kpi">
+        <div class="kpi clickable" id="da-cats-box">
           <div class="kpi-label">Categories with DA assignment started</div>
           <div class="kpi-value" id="da-cats">—</div>
           <div class="kpi-sub" id="da-cats-sub"></div>
@@ -433,7 +503,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>By Dealing Assistant</h2><p>Caseload currently assigned to each DA. Processing-time KPIs will appear here once dates are logged.</p></div>
+        <div><h2>By Dealing Assistant</h2><p>Caseload currently assigned to each DA. Click a card for the case list. Processing-time KPIs will appear here once dates are logged.</p></div>
       </div>
       <div class="da-grid" id="da-grid"></div>
     </section>
@@ -454,7 +524,7 @@
       <div class="review-header">
         <div>
           <h3>Weekly Review Pack — R.O. Salem</h3>
-          <p>Week ending 27 Jul 2026 · For Zonal Office review · VISHWAS, 2026</p>
+          <p id="review-sub">For Zonal Office review · VISHWAS, 2026</p>
         </div>
         <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
       </div>
@@ -473,7 +543,7 @@
         </thead>
         <tbody id="review-tbody"></tbody>
         <tfoot>
-          <tr>
+          <tr class="clickable" id="review-foot-row">
             <td>Office total</td>
             <td class="num mono" id="rv-foot-total"></td>
             <td class="num mono" id="rv-foot-outreach"></td>
@@ -486,7 +556,7 @@
       </table>
 
       <div class="section-head" style="margin-bottom:12px;">
-        <div><h2 style="font-size:14.5px;">Official KPI scorecard</h2><p>As defined in the compliance circular, with weightage.</p></div>
+        <div><h2 style="font-size:14.5px;">Official KPI scorecard</h2><p>As defined in the compliance circular, with weightage. Click a line to see the cases behind it.</p></div>
       </div>
       <div class="kpi-scorecard" id="kpi-scorecard"></div>
     </div>
@@ -514,12 +584,49 @@
 
 <div class="chart-tooltip" id="tooltip"></div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div><h3 id="modal-title"></h3><p id="modal-sub"></p></div>
+      <button class="modal-close" id="modal-close-btn" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <table class="modal-table" id="modal-table">
+        <thead>
+          <tr>
+            <th>Div</th><th>Officer</th><th>Category</th><th>Establishment</th><th>DA</th><th>Outreach</th><th>Application</th><th>§7Q status</th>
+          </tr>
+        </thead>
+        <tbody id="modal-tbody"></tbody>
+      </table>
+      <div class="modal-empty" id="modal-empty">
+        <div class="modal-empty-icon">—</div>
+        <div id="modal-empty-text">No cases match this yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* BEGIN_DATA — regenerated by build.py on every refresh, do not hand-edit between the markers */
 const DATA = __DATA_JSON__;
 /* END_DATA */
-const { asOf, officers: OFFICERS, categories: CATEGORIES, das: DAS, daUnassignedCat2: DA_UNASSIGNED_CAT2 } = DATA;
+const { asOf, roster, cases, cat4Count } = DATA;
 document.getElementById('asof-date').textContent = asOf;
+document.getElementById('review-sub').textContent = 'Week ending ' + asOf + ' · For Zonal Office review · VISHWAS, 2026';
+
+const OFFICER_NAMES = {
+  "501":"M Anbarasan", "502":"Arunesh", "503":"S Sathyamoorthy", "504":"S Harsha",
+  "505":"P Santhoshkumar", "506":"A Saravanakumar", "507":"A Saravanakumar (add. charge)",
+  "508":"M G Raja", "509":"M G Raja (add. charge)", "510":"D Kalpana",
+  "511":"G K L Krishnakumar", "512":"G K L Krishnakumar (add. charge)", "513":"Alok Dixit",
+};
+const CATEGORY_META = {
+  cat1: {tag:"CATEGORY I",   title:"Ongoing litigation",  desc:"CGIT · High Court · Supreme Court",         color:"var(--cat1)"},
+  cat2: {tag:"CATEGORY II",  title:"Finalised 14B / RRC",  desc:"Unpaid or partially paid orders",           color:"var(--cat2)"},
+  cat3: {tag:"CATEGORY III", title:"Pre-adjudication",     desc:"Notice issued, order awaited",              color:"var(--cat3)"},
+  cat4: {tag:"CATEGORY IV",  title:"Pre-adjudication",     desc:"Notice not yet issued",                     color:"var(--cat4)", notStarted:true},
+};
 
 function indianFmt(num){
   num = Math.round(num);
@@ -541,7 +648,57 @@ function crLakh(num){
 function pct(n, d){ return d > 0 ? (n/d*100) : null; }
 function fmtPct(n, d){ const p = pct(n,d); return p === null ? '—' : p.toFixed(1) + '%'; }
 
-OFFICERS.forEach(o => { o.total = o.c1 + o.c2 + o.c3; });
+/* ---------------- Derive everything from the raw case list ---------------- */
+function computeCategories(){
+  return ['cat1','cat2','cat3','cat4'].map(id => {
+    const meta = CATEGORY_META[id];
+    const rows = cases.filter(c => c.category === id);
+    const count = id === 'cat4' ? cat4Count : rows.length;
+    return {
+      id, tag: meta.tag, title: meta.title, desc: meta.desc, color: meta.color, notStarted: meta.notStarted,
+      count,
+      email: rows.filter(c => c.email).length,
+      sms: rows.filter(c => c.sms).length,
+      da: rows.filter(c => c.da).length,
+      apps: rows.filter(c => c.applicationDate).length,
+    };
+  });
+}
+function computeOfficers(){
+  return roster.map(o => {
+    const rows = cases.filter(c => c.division === o.division);
+    return {
+      division: o.division, name: OFFICER_NAMES[o.division] || o.name,
+      c1: rows.filter(c=>c.category==='cat1').length,
+      c2: rows.filter(c=>c.category==='cat2').length,
+      c3: rows.filter(c=>c.category==='cat3').length,
+      total: rows.length,
+      assessed: rows.reduce((a,c)=>a+(c.assessed||0),0),
+      remit14b: rows.reduce((a,c)=>a+(c.remit14b||0),0),
+      email: rows.filter(c=>c.email).length,
+      sms: rows.filter(c=>c.sms).length,
+      da: rows.filter(c=>c.da).length,
+      apps: rows.filter(c=>c.applicationDate).length,
+    };
+  }).sort((a,b) => Number(a.division) - Number(b.division));
+}
+function computeDAs(){
+  const map = {};
+  cases.filter(c => c.da).forEach(c => {
+    if (!map[c.da]) map[c.da] = {name:c.da, cases:0, divisions:new Set()};
+    map[c.da].cases++;
+    map[c.da].divisions.add(c.division);
+  });
+  return Object.values(map)
+    .map(d => ({...d, divisions:[...d.divisions].sort((a,b)=>Number(a)-Number(b))}))
+    .sort((a,b) => a.name.localeCompare(b.name));
+}
+
+const CATEGORIES = computeCategories();
+const OFFICERS = computeOfficers();
+const DAS = computeDAs();
+const DA_UNASSIGNED_CAT2 = cases.filter(c => c.category === 'cat2' && !c.da).length;
+const VISHWAS_ELIGIBLE = cases.filter(c => c.category === 'cat1' && c.status7q === 'Fully Remitted');
 
 const GRAND = {
   total: CATEGORIES.reduce((a,c)=>a+c.count,0),
@@ -550,6 +707,10 @@ const GRAND = {
   da: CATEGORIES.reduce((a,c)=>a+c.da,0),
   apps: CATEGORIES.reduce((a,c)=>a+c.apps,0),
 };
+const OUTREACH_LIST = cases.filter(c => c.email || c.sms);
+const SMS_LIST = cases.filter(c => c.sms);
+const DA_LIST = cases.filter(c => c.da);
+const APPS_LIST = cases.filter(c => c.applicationDate);
 
 /* ---------------- Tabs ---------------- */
 document.querySelectorAll('.tabbtn').forEach(btn => {
@@ -561,24 +722,128 @@ document.querySelectorAll('.tabbtn').forEach(btn => {
   });
 });
 
-/* ---------------- Tooltip ---------------- */
+/* ---------------- Hover tooltip (chart segments) ---------------- */
 const tooltip = document.getElementById('tooltip');
 function segTooltip(html, evt){ tooltip.innerHTML = html; tooltip.classList.add('show'); moveTooltip(evt); }
 function moveTooltip(evt){ tooltip.style.left = (evt.clientX + 14) + 'px'; tooltip.style.top = (evt.clientY + 14) + 'px'; }
 function hideTooltip(){ tooltip.classList.remove('show'); }
 
+/* ---------------- Drill-down modal ---------------- */
+function statusPill(s){
+  if (s === 'Fully Remitted') return '<span class="pill good"><i></i>Fully remitted</span>';
+  if (s === 'Partly Remitted') return '<span class="pill warn"><i></i>Partly remitted</span>';
+  if (s === 'Not Remitted') return '<span class="pill crit"><i></i>Not remitted</span>';
+  return '<span class="na">—</span>';
+}
+function caseRow(c){
+  const meta = CATEGORY_META[c.category];
+  const name = OFFICER_NAMES[c.division] || c.eo;
+  return `<tr>
+    <td class="mono officer-div">${c.division}</td>
+    <td class="officer-name">${name}</td>
+    <td><span class="cat-chip" style="color:${meta.color}">${meta.tag}</span></td>
+    <td>
+      <div class="case-name">${c.esttName || c.estt}</div>
+      ${c.caseNo ? `<div class="case-sub">${c.legalForum} · ${c.caseNo}</div>` : ''}
+    </td>
+    <td>${c.da || '<span class="na">—</span>'}</td>
+    <td>${c.email ? '<span class="pill good"><i></i>Emailed</span>' : '<span class="pill neutral"><i></i>No contact</span>'}${c.sms ? ' <span class="pill good"><i></i>SMS</span>' : ''}</td>
+    <td>${c.applicationDate ? `<span class="pill good"><i></i>${c.applicationDate}</span>` : '<span class="pill neutral"><i></i>Not applied</span>'}</td>
+    <td>${statusPill(c.status7q)}</td>
+  </tr>`;
+}
+function openDrill(title, sub, list, emptyNote){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub || '';
+  const tableEl = document.getElementById('modal-table');
+  const emptyEl = document.getElementById('modal-empty');
+  if (list.length === 0){
+    tableEl.style.display = 'none';
+    emptyEl.style.display = 'flex';
+    document.getElementById('modal-empty-text').textContent = emptyNote || 'No cases match this yet.';
+  } else {
+    tableEl.style.display = '';
+    emptyEl.style.display = 'none';
+    document.getElementById('modal-tbody').innerHTML = list.map(caseRow).join('');
+  }
+  document.getElementById('modal-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrill(){
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.getElementById('modal-close-btn').addEventListener('click', closeDrill);
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeDrill(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrill(); });
+
+function bindClickable(el, handler){
+  if (!el) return;
+  el.classList.add('clickable');
+  el.tabIndex = 0;
+  el.setAttribute('role', 'button');
+  el.addEventListener('click', handler);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handler(); } });
+}
+function openDrillCategory(catId){
+  const meta = CATEGORY_META[catId];
+  const list = cases.filter(c => c.category === catId);
+  openDrill(`${meta.tag} — ${meta.title}`, `${list.length} establishment${list.length===1?'':'s'}`, list,
+    'No establishments logged in this category yet.');
+}
+function openDrillDivision(div){
+  const list = cases.filter(c => c.division === div);
+  openDrill(`Division ${div} — ${OFFICER_NAMES[div] || div}`, `${list.length} case${list.length===1?'':'s'} assigned`, list);
+}
+function openDrillDivisionCategory(div, catId){
+  const meta = CATEGORY_META[catId];
+  const list = cases.filter(c => c.division === div && c.category === catId);
+  openDrill(`${meta.tag} — Division ${div} (${OFFICER_NAMES[div] || div})`, `${list.length} case${list.length===1?'':'s'}`, list);
+}
+function openDrillDA(name){
+  const list = cases.filter(c => c.da === name);
+  openDrill(name, `${list.length} case${list.length===1?'':'s'} assigned`, list);
+}
+
 /* ================= OVERVIEW TAB ================= */
+document.getElementById('eligible-count').innerHTML = VISHWAS_ELIGIBLE.length + '<small>Category I</small>';
+bindClickable(document.getElementById('eligible-box'), () => openDrill(
+  'Vishwas-eligible cases', `${VISHWAS_ELIGIBLE.length} case${VISHWAS_ELIGIBLE.length===1?'':'s'} — §7Q fully remitted (Category I only; the only category with reliable interest-remittance data today)`,
+  VISHWAS_ELIGIBLE, 'No cases currently have §7Q fully remitted.'
+));
+
 document.getElementById('ov-total').textContent = GRAND.total;
 document.getElementById('ov-total-sub').textContent =
   CATEGORIES.filter(c => !c.notStarted).map(c => c.count + ' ' + c.title.toLowerCase()).join(' · ');
-document.getElementById('ov-outreach').textContent = GRAND.email + ' / ' + GRAND.total;
-document.getElementById('ov-outreach-sub').textContent = fmtPct(GRAND.email, GRAND.total) + ' contacted';
-document.getElementById('ov-outreach-bar').style.width = pct(GRAND.email, GRAND.total).toFixed(1) + '%';
-document.getElementById('ov-da').textContent = GRAND.da + ' / ' + GRAND.total;
-document.getElementById('ov-da-sub').textContent = fmtPct(GRAND.da, GRAND.total) + ' have a named DA';
-document.getElementById('ov-da-bar').style.width = pct(GRAND.da, GRAND.total).toFixed(1) + '%';
-document.getElementById('ov-apps').textContent = GRAND.apps + ' / ' + GRAND.total;
-document.getElementById('ov-apps-bar').style.width = Math.max(pct(GRAND.apps, GRAND.total), 1.5) + '%';
+bindClickable(document.getElementById('ov-total-box'), () => openDrill('Eligible establishments', `${GRAND.total} across categories I–III`, cases));
+
+document.getElementById('ov-outreach').textContent = OUTREACH_LIST.length + ' / ' + GRAND.total;
+document.getElementById('ov-outreach-sub').textContent = fmtPct(OUTREACH_LIST.length, GRAND.total) + ' contacted';
+document.getElementById('ov-outreach-bar').style.width = pct(OUTREACH_LIST.length, GRAND.total).toFixed(1) + '%';
+bindClickable(document.getElementById('ov-outreach-box'), () => openDrill('Outreach done', `${OUTREACH_LIST.length} of ${GRAND.total} contacted by email or SMS`, OUTREACH_LIST));
+
+document.getElementById('ov-da').textContent = DA_LIST.length + ' / ' + GRAND.total;
+document.getElementById('ov-da-sub').textContent = fmtPct(DA_LIST.length, GRAND.total) + ' have a named DA';
+document.getElementById('ov-da-bar').style.width = pct(DA_LIST.length, GRAND.total).toFixed(1) + '%';
+bindClickable(document.getElementById('ov-da-box'), () => openDrill('DA assigned', `${DA_LIST.length} of ${GRAND.total} cases have a named Dealing Assistant`, DA_LIST));
+
+document.getElementById('ov-apps').textContent = APPS_LIST.length + ' / ' + GRAND.total;
+document.getElementById('ov-apps-bar').style.width = Math.max(pct(APPS_LIST.length, GRAND.total), 1.5) + '%';
+bindClickable(document.getElementById('ov-apps-box'), () => openDrill('Applications received', `${APPS_LIST.length} of ${GRAND.total} — EO target achieved`, APPS_LIST,
+  'No Vishwas applications have been received in office yet.'));
+
+{
+  const outreachPctVal = pct(OUTREACH_LIST.length, GRAND.total);
+  const calloutEl = document.getElementById('outreach-callout-text');
+  const calloutBox = document.getElementById('outreach-callout');
+  if (OUTREACH_LIST.length === GRAND.total) {
+    calloutEl.innerHTML = `<b>All ${GRAND.total}</b> eligible establishments have been contacted at least once (email or SMS) — outreach is complete office-wide. The gap now is conversion: getting those contacts to actually file a Vishwas application.`;
+  } else {
+    calloutBox.classList.remove('pos'); calloutBox.classList.add('neu');
+    calloutEl.innerHTML = `<b>${OUTREACH_LIST.length} of ${GRAND.total}</b> (${outreachPctVal.toFixed(0)}%) eligible establishments have been contacted so far — ${GRAND.total - OUTREACH_LIST.length} still need an email or SMS before they can be expected to apply.`;
+  }
+  bindClickable(calloutBox, () => openDrill('Outreach done', `${OUTREACH_LIST.length} of ${GRAND.total} contacted by email or SMS`, OUTREACH_LIST));
+}
 
 const catGrid = document.getElementById('cat-grid');
 CATEGORIES.forEach(c => {
@@ -598,17 +863,21 @@ CATEGORIES.forEach(c => {
       <div class="metric-row"><span>Applications received</span><span class="val">${c.apps}/${c.count}</span></div>
     `}
   `;
+  bindClickable(el, () => openDrillCategory(c.id));
   catGrid.appendChild(el);
 });
 
 /* Funnel */
 const funnelStages = [
-  {label:"Eligible establishments", value: GRAND.total, color:"var(--accent)"},
-  {label:"Outreach done", value: GRAND.email, color:"var(--good)"},
-  {label:"DA assigned", value: GRAND.da, color:"var(--warn)"},
-  {label:"Application received", value: GRAND.apps, color:"var(--crit)"},
-  {label:"Approved by APFC", value: 0, color:"var(--crit)"},
-  {label:"Certificate issued", value: 0, color:"var(--crit)"},
+  {label:"Eligible establishments", value: GRAND.total, color:"var(--accent)", list: cases},
+  {label:"Outreach done", value: OUTREACH_LIST.length, color:"var(--good)", list: OUTREACH_LIST},
+  {label:"DA assigned", value: DA_LIST.length, color:"var(--warn)", list: DA_LIST},
+  {label:"Application received", value: APPS_LIST.length, color:"var(--crit)", list: APPS_LIST,
+    emptyNote:"No Vishwas applications have been received in office yet."},
+  {label:"Approved by APFC", value: 0, color:"var(--crit)", list: [],
+    emptyNote:"No applications have reached APFC approval yet."},
+  {label:"Certificate issued", value: 0, color:"var(--crit)", list: [],
+    emptyNote:"No Vishwas certificates have been issued yet."},
 ];
 const funnelEl = document.getElementById('funnel');
 const funnelMax = funnelStages[0].value;
@@ -622,13 +891,21 @@ funnelStages.forEach(s => {
     <div class="bar-track"><div class="bar-seg" style="width:${w}%; background:${s.color}"></div></div>
     <div class="bar-total">${s.value}</div>
   `;
+  bindClickable(row, () => openDrill(s.label, `${s.value} of ${GRAND.total} cases`, s.list, s.emptyNote));
   funnelEl.appendChild(row);
 });
 
 /* ================= EO TAB ================= */
-document.getElementById('eo-target').textContent = fmtPct(GRAND.apps, GRAND.total);
-document.getElementById('eo-outreach').textContent = fmtPct(GRAND.email, GRAND.total);
-document.getElementById('eo-sms').textContent = fmtPct(GRAND.sms, GRAND.total);
+document.getElementById('eo-target').textContent = fmtPct(APPS_LIST.length, GRAND.total);
+bindClickable(document.getElementById('eo-target-box'), () => openDrill('Applications received', `${APPS_LIST.length} of ${GRAND.total} — EO target achieved`, APPS_LIST,
+  'No Vishwas applications have been received in office yet.'));
+
+document.getElementById('eo-outreach').textContent = fmtPct(OUTREACH_LIST.length, GRAND.total);
+bindClickable(document.getElementById('eo-outreach-box'), () => openDrill('Outreach done', `${OUTREACH_LIST.length} of ${GRAND.total} contacted by email or SMS`, OUTREACH_LIST));
+
+document.getElementById('eo-sms').textContent = fmtPct(SMS_LIST.length, GRAND.total);
+bindClickable(document.getElementById('eo-sms-box'), () => openDrill('SMS follow-up sent', `${SMS_LIST.length} of ${GRAND.total}`, SMS_LIST,
+  'No SMS follow-up has been logged yet.'));
 
 const eoBarChart = document.getElementById('eo-bar-chart');
 const eoMax = Math.max(...OFFICERS.map(o => o.total));
@@ -648,13 +925,16 @@ eoOrder.forEach(o => {
     </div>
     <div class="bar-total">${o.total} case${o.total===1?'':'s'}</div>
   `;
+  bindClickable(row, () => openDrillDivision(o.division));
   eoBarChart.appendChild(row);
-  const segs = [['seg1','Category I',o.c1],['seg2','Category II',o.c2],['seg3','Category III',o.c3]];
-  segs.forEach(([cls,label,val]) => {
+  const segs = [['seg1','cat1',o.c1],['seg2','cat2',o.c2],['seg3','cat3',o.c3]];
+  segs.forEach(([cls,catId,val]) => {
     const node = row.querySelector('.' + cls);
-    if(!node) return;
-    node.addEventListener('mousemove', evt => segTooltip(`<b>${val}</b> ${label.toLowerCase()} case${val===1?'':'s'}<br>${o.name} · Div ${o.division}`, evt));
+    if (!node) return;
+    const meta = CATEGORY_META[catId];
+    node.addEventListener('mousemove', evt => segTooltip(`<b>${val}</b> ${meta.title.toLowerCase()} case${val===1?'':'s'}<br>${o.name} · Div ${o.division}`, evt));
     node.addEventListener('mouseleave', hideTooltip);
+    node.addEventListener('click', evt => { evt.stopPropagation(); openDrillDivisionCategory(o.division, catId); });
   });
 });
 
@@ -673,7 +953,7 @@ function renderEoTable(){
     return ((av||0) - (bv||0)) * eoSortDir;
   });
   eoTbody.innerHTML = rows.map(o => `
-    <tr>
+    <tr class="clickable" data-div="${o.division}">
       <td class="mono officer-div">${o.division}</td>
       <td class="officer-name">${o.name}</td>
       <td class="num mono"><b>${o.total}</b></td>
@@ -684,6 +964,11 @@ function renderEoTable(){
     </tr>
   `).join('');
   eoRowCount.textContent = rows.length + ' of ' + OFFICERS.length + ' divisions';
+  eoTbody.querySelectorAll('tr').forEach(tr => {
+    tr.tabIndex = 0; tr.setAttribute('role','button');
+    tr.addEventListener('click', () => openDrillDivision(tr.dataset.div));
+    tr.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); openDrillDivision(tr.dataset.div); } });
+  });
 }
 document.querySelectorAll('#eo-table thead th').forEach(th => {
   th.addEventListener('click', () => {
@@ -697,16 +982,26 @@ document.querySelectorAll('#eo-table thead th').forEach(th => {
 eoSearch.addEventListener('input', renderEoTable);
 renderEoTable();
 document.getElementById('eo-foot-total').textContent = GRAND.total;
-document.getElementById('eo-foot-outreach').textContent = fmtPct(GRAND.email, GRAND.total);
-document.getElementById('eo-foot-sms').textContent = fmtPct(GRAND.sms, GRAND.total);
+document.getElementById('eo-foot-outreach').textContent = fmtPct(OUTREACH_LIST.length, GRAND.total);
+document.getElementById('eo-foot-sms').textContent = fmtPct(SMS_LIST.length, GRAND.total);
 document.getElementById('eo-foot-da').textContent = GRAND.da;
 document.getElementById('eo-foot-apps').textContent = GRAND.apps + ' of ' + GRAND.total;
 
 /* ================= DA TAB ================= */
-document.getElementById('da-total').textContent = GRAND.da + ' / ' + GRAND.total;
+document.getElementById('da-total').textContent = DA_LIST.length + ' / ' + GRAND.total;
+document.getElementById('da-total-sub').textContent = 'of ' + GRAND.total + ' eligible cases';
+bindClickable(document.getElementById('da-total-box'), () => openDrill('DA assigned', `${DA_LIST.length} of ${GRAND.total} cases have a named Dealing Assistant`, DA_LIST));
+
 document.getElementById('da-count').textContent = DAS.length;
-document.getElementById('da-cats').textContent = '1 of 3';
-document.getElementById('da-cats-sub').textContent = 'Category II only — I & III not yet started';
+bindClickable(document.getElementById('da-count-box'), () => openDrill('Cases with a named DA', `${DA_LIST.length} case${DA_LIST.length===1?'':'s'} across ${DAS.length} Dealing Assistants`, DA_LIST));
+
+const catsWithDA = CATEGORIES.filter(c => !c.notStarted && c.da > 0);
+const activeCats = CATEGORIES.filter(c => !c.notStarted);
+document.getElementById('da-cats').textContent = catsWithDA.length + ' of ' + activeCats.length;
+document.getElementById('da-cats-sub').textContent = catsWithDA.length
+  ? catsWithDA.map(c => c.tag).join(', ') + ' only'
+  : 'Not started in any category yet';
+bindClickable(document.getElementById('da-cats-box'), () => openDrill('DA assigned', `${DA_LIST.length} of ${GRAND.total} cases have a named Dealing Assistant`, DA_LIST));
 
 const daGrid = document.getElementById('da-grid');
 DAS.forEach(da => {
@@ -718,8 +1013,10 @@ DAS.forEach(da => {
     <div class="da-sub">case${da.cases===1?'':'s'} assigned</div>
     <div class="da-divs">${da.divisions.map(d => `<span class="da-div-chip">Div ${d}</span>`).join('')}</div>
   `;
+  bindClickable(el, () => openDrillDA(da.name));
   daGrid.appendChild(el);
 });
+const unassignedList = cases.filter(c => c.category === 'cat2' && !c.da);
 const unassignedEl = document.createElement('div');
 unassignedEl.className = 'da-card unassigned';
 unassignedEl.innerHTML = `
@@ -727,26 +1024,30 @@ unassignedEl.innerHTML = `
   <div class="da-count">${DA_UNASSIGNED_CAT2}</div>
   <div class="da-sub">case${DA_UNASSIGNED_CAT2===1?'':'s'} still without a named DA</div>
 `;
+bindClickable(unassignedEl, () => openDrill('Unassigned — Category II', `${unassignedList.length} case${unassignedList.length===1?'':'s'} without a named DA`, unassignedList));
 daGrid.appendChild(unassignedEl);
 
 const daCatBars = document.getElementById('da-cat-bars');
-[{label:"Category I", count:40, da:0},{label:"Category II", count:14, da:10},{label:"Category III", count:48, da:0}].forEach(c => {
+activeCats.forEach(c => {
   const row = document.createElement('div');
   row.className = 'bar-row';
   row.style.gridTemplateColumns = '140px 1fr 90px';
   const w = pct(c.da, c.count);
   row.innerHTML = `
-    <div class="bar-name">${c.label}</div>
-    <div class="bar-track"><div class="bar-seg" style="width:${Math.max(w,c.da?2:0)}%; background:var(--warn)"></div></div>
+    <div class="bar-name">${c.tag}</div>
+    <div class="bar-track"><div class="bar-seg" style="width:${Math.max(w||0, c.da?2:0)}%; background:var(--warn)"></div></div>
     <div class="bar-total">${c.da} / ${c.count}</div>
   `;
+  const list = cases.filter(cc => cc.category === c.id && cc.da);
+  bindClickable(row, () => openDrill(`${c.tag} — DA assigned`, `${list.length} of ${c.count} cases`, list,
+    'No establishments in this category have a DA assigned yet.'));
   daCatBars.appendChild(row);
 });
 
 /* ================= ZONAL REVIEW TAB ================= */
 const reviewTbody = document.getElementById('review-tbody');
 reviewTbody.innerHTML = CATEGORIES.map(c => `
-  <tr>
+  <tr class="clickable" data-cat="${c.id}">
     <td>${c.tag} — ${c.title}</td>
     <td class="num mono">${c.count}</td>
     <td class="num mono">${c.email}</td>
@@ -756,31 +1057,48 @@ reviewTbody.innerHTML = CATEGORIES.map(c => `
     <td class="num mono">0</td>
   </tr>
 `).join('');
+reviewTbody.querySelectorAll('tr').forEach(tr => {
+  tr.tabIndex = 0; tr.setAttribute('role','button');
+  tr.addEventListener('click', () => openDrillCategory(tr.dataset.cat));
+  tr.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); openDrillCategory(tr.dataset.cat); } });
+});
 document.getElementById('rv-foot-total').textContent = GRAND.total;
 document.getElementById('rv-foot-outreach').textContent = GRAND.email;
 document.getElementById('rv-foot-apps').textContent = GRAND.apps;
+bindClickable(document.getElementById('review-foot-row'), () => openDrill('All eligible establishments', `${GRAND.total} across Categories I–III`, cases));
 
 const cat1Count = (CATEGORIES.find(c => c.id === 'cat1') || {count:0}).count;
+const cat1Cases = cases.filter(c => c.category === 'cat1');
 const KPIS = [
-  {title:"Outreach to eligible establishments", weight:20, value: pct(GRAND.email, GRAND.total), status:"measured"},
-  {title:"DA processing within 10 working days", weight:20, value: null, status:"No applications received yet to process"},
-  {title:"Amount communicated within 20 days", weight:25, value: null, status:"No applications received yet"},
-  {title:"Certificate issued within 3 days", weight:10, value: null, status:"No approvals yet"},
-  {title:"Litigation withdrawal filed", weight:25, value: GRAND.apps > 0 ? null : 0, status: GRAND.apps > 0 ? "Awaiting certificate issuance" : `0 of ${cat1Count} Category I cases (none certified yet)`},
+  {title:"Outreach to eligible establishments", weight:20, value: pct(OUTREACH_LIST.length, GRAND.total), status:"measured",
+    list: OUTREACH_LIST, sub: `${OUTREACH_LIST.length} of ${GRAND.total} contacted`},
+  {title:"DA processing within 10 working days", weight:20, value: null, status:"No applications received yet to process",
+    list: [], emptyNote:"No applications have been received yet, so none are with a DA to process."},
+  {title:"Amount communicated within 20 days", weight:25, value: null, status:"No applications received yet",
+    list: [], emptyNote:"No applications have been received yet."},
+  {title:"Certificate issued within 3 days", weight:10, value: null, status:"No approvals yet",
+    list: [], emptyNote:"No Vishwas certificates have been issued yet."},
+  {title:"Litigation withdrawal filed", weight:25, value: 0,
+    status: `0 of ${cat1Count} Category I cases (none certified yet)`,
+    list: cat1Cases, sub: `${cat1Count} Category I litigation cases — this KPI applies once any of them are certified`},
 ];
 const scorecard = document.getElementById('kpi-scorecard');
-scorecard.innerHTML = KPIS.map(k => {
+scorecard.innerHTML = KPIS.map((k,i) => {
   const known = k.value !== null;
   const barColor = !known ? 'var(--neutral)' : (k.value >= 80 ? 'var(--good)' : k.value >= 40 ? 'var(--warn)' : 'var(--crit)');
   const pctLabel = known ? k.value.toFixed(1) + '%' : 'N/A';
   return `
-    <div class="kpi-line">
+    <div class="kpi-line clickable" data-kpi="${i}">
       <div class="kpi-line-title">${k.title}</div>
       <div class="kpi-line-weight">${k.weight}% weight</div>
       <div class="kpi-line-bar"><span style="width:${known ? Math.max(k.value,2) : 0}%; background:${barColor}"></span></div>
       <div class="kpi-line-status">${known ? `<b class="mono">${pctLabel}</b>` : `<span class="na">${pctLabel}</span>`}</div>
     </div>
-    <div style="font-size:11.5px; color:var(--ink-400); margin-top:-6px;">${k.status}</div>
+    <div class="kpi-line-note">${k.status}</div>
   `;
 }).join('');
+scorecard.querySelectorAll('.kpi-line').forEach(line => {
+  const k = KPIS[Number(line.dataset.kpi)];
+  bindClickable(line, () => openDrill(k.title, k.sub || '', k.list, k.emptyNote));
+});
 </script>
