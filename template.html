@@ -1,0 +1,786 @@
+<title>Vishwas Performance Dashboard — R.O. Salem</title>
+<style>
+  @font-face { font-family:'Plex Sans'; font-weight:400; font-style:normal; src:url(data:font/woff2;base64,__SANS400__) format('woff2'); font-display:swap; }
+  @font-face { font-family:'Plex Sans'; font-weight:600; font-style:normal; src:url(data:font/woff2;base64,__SANS600__) format('woff2'); font-display:swap; }
+  @font-face { font-family:'Plex Sans'; font-weight:700; font-style:normal; src:url(data:font/woff2;base64,__SANS700__) format('woff2'); font-display:swap; }
+  @font-face { font-family:'Plex Mono'; font-weight:500; font-style:normal; src:url(data:font/woff2;base64,__MONO500__) format('woff2'); font-display:swap; }
+  @font-face { font-family:'Plex Mono'; font-weight:600; font-style:normal; src:url(data:font/woff2;base64,__MONO600__) format('woff2'); font-display:swap; }
+
+  :root{
+    color-scheme: light;
+    --surface-0:#EEF1F5; --surface-1:#FFFFFF; --surface-2:#F6F8FA;
+    --border:#DCE2EA; --border-strong:#C4CCD8;
+    --ink-900:#101827; --ink-700:#414A5E; --ink-500:#767F92; --ink-400:#9BA3B3;
+    --accent:#24466B; --accent-strong:#17324F; --accent-tint:#E6EDF4; --accent-tint-2:#D3E0EC;
+    --good:#0C8A3E; --good-tint:#E3F5EA;
+    --warn:#B7791F; --warn-tint:#FBF0DD;
+    --crit:#B4402B; --crit-tint:#FBEAE6;
+    --neutral:#767F92; --neutral-tint:#EEF0F3;
+    --cat1:#2A78D6; --cat2:#EB6834; --cat3:#1BAF7A; --cat4:#9B7FD4;
+    --shadow: 0 1px 2px rgba(16,24,39,0.04), 0 8px 24px -12px rgba(16,24,39,0.12);
+    --radius-md:10px; --radius-lg:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --surface-0:#0A0F1A; --surface-1:#111827; --surface-2:#161F30;
+      --border:#26324A; --border-strong:#33415C;
+      --ink-900:#F1F4F9; --ink-700:#C6CDDC; --ink-500:#8B94A8; --ink-400:#6C7488;
+      --accent:#6FA0CC; --accent-strong:#8FB8DE; --accent-tint:#16283C; --accent-tint-2:#1C3350;
+      --good:#3FC17E; --good-tint:#123322;
+      --warn:#E0A83D; --warn-tint:#332711;
+      --crit:#E27B62; --crit-tint:#3A1F19;
+      --neutral:#8B94A8; --neutral-tint:#1B2233;
+      --cat1:#3987E5; --cat2:#D95926; --cat3:#199E70; --cat4:#B39DE0;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-0:#0A0F1A; --surface-1:#111827; --surface-2:#161F30;
+    --border:#26324A; --border-strong:#33415C;
+    --ink-900:#F1F4F9; --ink-700:#C6CDDC; --ink-500:#8B94A8; --ink-400:#6C7488;
+    --accent:#6FA0CC; --accent-strong:#8FB8DE; --accent-tint:#16283C; --accent-tint-2:#1C3350;
+    --good:#3FC17E; --good-tint:#123322;
+    --warn:#E0A83D; --warn-tint:#332711;
+    --crit:#E27B62; --crit-tint:#3A1F19;
+    --neutral:#8B94A8; --neutral-tint:#1B2233;
+    --cat1:#3987E5; --cat2:#D95926; --cat3:#199E70; --cat4:#B39DE0;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+  :root[data-theme="light"]{
+    color-scheme: light;
+    --surface-0:#EEF1F5; --surface-1:#FFFFFF; --surface-2:#F6F8FA;
+    --border:#DCE2EA; --border-strong:#C4CCD8;
+    --ink-900:#101827; --ink-700:#414A5E; --ink-500:#767F92; --ink-400:#9BA3B3;
+    --accent:#24466B; --accent-strong:#17324F; --accent-tint:#E6EDF4; --accent-tint-2:#D3E0EC;
+    --good:#0C8A3E; --good-tint:#E3F5EA;
+    --warn:#B7791F; --warn-tint:#FBF0DD;
+    --crit:#B4402B; --crit-tint:#FBEAE6;
+    --neutral:#767F92; --neutral-tint:#EEF0F3;
+    --cat1:#2A78D6; --cat2:#EB6834; --cat3:#1BAF7A; --cat4:#9B7FD4;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--surface-0); color:var(--ink-700);
+    font-family:'Plex Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent-tint-2); }
+  a{ color:var(--accent); }
+  h1,h2,h3{ color:var(--ink-900); font-weight:700; margin:0; text-wrap:balance; }
+  button, input{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .wrap{ max-width:1220px; margin:0 auto; padding:24px 24px 64px; }
+
+  .masthead{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:24px;
+    padding-bottom:18px; margin-bottom:16px; border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+  }
+  .masthead-eyebrow{
+    font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:6px; font-family:'Plex Mono', monospace;
+  }
+  .masthead h1{ font-size:24px; letter-spacing:-0.01em; }
+  .masthead p{ margin:6px 0 0; color:var(--ink-500); font-size:13.5px; max-width:58ch; }
+  .asof{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; white-space:nowrap; }
+  .asof-badge{
+    display:inline-flex; align-items:center; gap:7px; background:var(--surface-1);
+    border:1px solid var(--border); border-radius:999px; padding:6px 12px 6px 10px;
+    font-size:12.5px; color:var(--ink-700); box-shadow:var(--shadow);
+  }
+  .asof-dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
+  .asof-sub{ font-size:11.5px; color:var(--ink-400); }
+
+  /* ---- Tabs ---- */
+  .tabbar{
+    display:flex; gap:4px; margin-bottom:26px; border-bottom:1px solid var(--border);
+    overflow-x:auto;
+  }
+  .tabbtn{
+    appearance:none; background:none; border:none; cursor:pointer; padding:10px 4px;
+    margin-right:22px; font-size:13.5px; font-weight:600; color:var(--ink-500);
+    border-bottom:2.5px solid transparent; white-space:nowrap; transition:color .12s, border-color .12s;
+  }
+  .tabbtn:hover{ color:var(--ink-900); }
+  .tabbtn.active{ color:var(--accent); border-bottom-color:var(--accent); }
+  .tabpanel{ display:none; }
+  .tabpanel.active{ display:block; animation:fadein .15s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);} }
+
+  .kpi-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:14px; }
+  .kpi{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; box-shadow:var(--shadow); }
+  .kpi-label{ font-size:11.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-500); }
+  .kpi-value{ font-family:'Plex Mono', monospace; font-weight:600; font-size:24px; color:var(--ink-900); margin-top:8px; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+  .kpi-value small{ font-size:14px; font-weight:500; color:var(--ink-500); margin-left:2px; }
+  .kpi-sub{ margin-top:6px; font-size:12.5px; color:var(--ink-500); }
+  .kpi-bar{ margin-top:11px; height:5px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
+  .kpi-bar-fill{ height:100%; border-radius:999px; background:var(--accent); }
+  .kpi-bar-fill.good{ background:var(--good); }
+  .kpi-bar-fill.warn{ background:var(--warn); }
+  .kpi-bar-fill.crit{ background:var(--crit); }
+
+  .callout{ display:flex; align-items:center; gap:12px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:13px 16px; margin-bottom:28px; font-size:13.5px; color:var(--ink-700); }
+  .callout-icon{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Plex Mono',monospace; font-weight:600; font-size:13px; }
+  .callout.pos .callout-icon{ background:var(--good-tint); color:var(--good); }
+  .callout.neu .callout-icon{ background:var(--warn-tint); color:var(--warn); }
+  .callout b{ color:var(--ink-900); font-weight:600; }
+
+  .section{ margin-bottom:34px; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+  .section-head h2{ font-size:16.5px; }
+  .section-head p{ margin:3px 0 0; font-size:12.5px; color:var(--ink-500); }
+
+  .cat-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  .cat-card{ background:var(--surface-1); border:1px solid var(--border); border-top:3px solid var(--cat-color, var(--accent)); border-radius:var(--radius-md); padding:16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px; }
+  .cat-card.not-started{ border-top-style:dashed; border-top-color:var(--border-strong); opacity:.82; }
+  .cat-card-top{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .cat-tag{ font-family:'Plex Mono',monospace; font-size:11px; font-weight:600; color:var(--cat-color, var(--ink-500)); letter-spacing:.03em; }
+  .cat-count{ font-family:'Plex Mono',monospace; font-weight:600; font-size:20px; color:var(--ink-900); font-variant-numeric:tabular-nums; }
+  .cat-title{ font-size:13px; font-weight:600; color:var(--ink-900); }
+  .cat-desc{ font-size:11.5px; color:var(--ink-500); margin-top:-5px; }
+  .metric-row{ display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--ink-500); gap:8px; }
+  .metric-row .val{ font-family:'Plex Mono',monospace; font-weight:600; color:var(--ink-900); }
+  .mini-bar{ height:5px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
+  .mini-bar span{ display:block; height:100%; border-radius:999px; }
+  .cat-note{ font-size:11px; color:var(--ink-400); font-style:italic; }
+
+  .chart-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 22px 16px; box-shadow:var(--shadow); }
+  .chart-legend{ display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+  .chart-legend span{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-700); }
+  .chart-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .bar-row{ display:grid; grid-template-columns:172px 1fr 100px; align-items:center; gap:12px; padding:5px 0; }
+  .bar-row + .bar-row{ border-top:1px solid var(--surface-2); }
+  .bar-name{ font-size:13px; color:var(--ink-900); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar-div{ font-family:'Plex Mono',monospace; font-size:11px; color:var(--ink-500); font-weight:500; }
+  .bar-track{ position:relative; height:18px; display:flex; border-radius:5px; overflow:hidden; background:var(--surface-2); }
+  .bar-seg{ height:100%; cursor:pointer; transition:filter .12s; }
+  .bar-seg:hover{ filter:brightness(1.12); }
+  .bar-total{ font-family:'Plex Mono',monospace; font-size:12.5px; color:var(--ink-700); text-align:right; font-variant-numeric:tabular-nums; }
+  .chart-tooltip{ position:fixed; pointer-events:none; z-index:50; background:var(--ink-900); color:var(--surface-1); font-size:12px; padding:7px 10px; border-radius:7px; box-shadow:0 8px 20px rgba(0,0,0,.25); opacity:0; transform:translateY(4px); transition:opacity .1s, transform .1s; white-space:nowrap; font-family:'Plex Sans', sans-serif; }
+  .chart-tooltip.show{ opacity:1; transform:translateY(0); }
+  .chart-tooltip b{ font-family:'Plex Mono',monospace; }
+
+  .table-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow); overflow:hidden; }
+  .table-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .search-box{ position:relative; width:230px; }
+  .search-box input{ width:100%; padding:8px 12px 8px 32px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2); color:var(--ink-900); font-size:13px; }
+  .search-box input:focus{ background:var(--surface-1); }
+  .search-box::before{ content:"⌕"; position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--ink-400); font-size:14px; }
+  .table-hint{ font-size:12px; color:var(--ink-400); }
+  .table-scroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:760px; }
+  thead th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:10px 14px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap; }
+  thead th:hover{ color:var(--ink-900); }
+  thead th.num, td.num{ text-align:right; }
+  thead th .sort-ind{ font-size:9px; margin-left:3px; opacity:.5; }
+  thead th.active .sort-ind{ opacity:1; color:var(--accent); }
+  tbody td{ padding:10px 14px; border-bottom:1px solid var(--surface-2); font-size:13px; vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--surface-2); }
+  td.mono, .mono{ font-family:'Plex Mono',monospace; font-variant-numeric:tabular-nums; }
+  .officer-name{ font-weight:600; color:var(--ink-900); }
+  .officer-div{ font-family:'Plex Mono',monospace; font-size:11px; color:var(--ink-500); }
+  .meter-cell{ display:flex; align-items:center; gap:8px; min-width:120px; }
+  .meter{ flex:1; height:6px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
+  .meter-fill{ height:100%; border-radius:999px; }
+  .meter-pct{ font-family:'Plex Mono',monospace; font-size:12px; color:var(--ink-700); width:36px; text-align:right; }
+  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:3px 8px; border-radius:999px; font-weight:600; }
+  .pill.good{ background:var(--good-tint); color:var(--good); }
+  .pill.warn{ background:var(--warn-tint); color:var(--warn); }
+  .pill.crit{ background:var(--crit-tint); color:var(--crit); }
+  .pill.neutral{ background:var(--neutral-tint); color:var(--neutral); }
+  .pill i{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .na{ color:var(--ink-400); }
+  tfoot td{ padding:12px 14px; font-weight:600; color:var(--ink-900); background:var(--surface-2); border-top:1px solid var(--border-strong); font-size:13px; }
+
+  /* DA cards */
+  .da-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+  .da-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; box-shadow:var(--shadow); }
+  .da-card.unassigned{ border-style:dashed; border-color:var(--border-strong); }
+  .da-name{ font-weight:600; color:var(--ink-900); font-size:14px; }
+  .da-count{ font-family:'Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--ink-900); margin-top:8px; }
+  .da-sub{ font-size:12px; color:var(--ink-500); margin-top:4px; }
+  .da-divs{ display:flex; gap:5px; margin-top:10px; flex-wrap:wrap; }
+  .da-div-chip{ font-family:'Plex Mono',monospace; font-size:10.5px; background:var(--accent-tint); color:var(--accent); padding:2px 7px; border-radius:5px; font-weight:600; }
+
+  /* Zonal review */
+  .review-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:22px 24px; }
+  .review-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .review-header h3{ font-size:15px; color:var(--ink-900); font-weight:700; }
+  .review-header p{ margin:3px 0 0; font-size:12px; color:var(--ink-500); }
+  .print-btn{ appearance:none; border:1px solid var(--border-strong); background:var(--surface-1); color:var(--ink-700); padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .print-btn:hover{ background:var(--surface-2); }
+  .review-table{ width:100%; border-collapse:collapse; margin-bottom:22px; }
+  .review-table th{ text-align:left; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:8px 10px; border-bottom:1px solid var(--border); }
+  .review-table th.num, .review-table td.num{ text-align:right; }
+  .review-table td{ padding:9px 10px; border-bottom:1px solid var(--surface-2); font-size:13px; }
+  .review-table tfoot td{ font-weight:700; background:var(--surface-2); }
+  .kpi-scorecard{ display:flex; flex-direction:column; gap:10px; }
+  .kpi-line{ display:grid; grid-template-columns:1fr 90px 1.4fr 130px; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid var(--surface-2); }
+  .kpi-line:last-child{ border-bottom:none; }
+  .kpi-line-title{ font-size:13px; font-weight:600; color:var(--ink-900); }
+  .kpi-line-weight{ font-family:'Plex Mono',monospace; font-size:11.5px; color:var(--ink-500); text-align:center; background:var(--surface-2); border-radius:6px; padding:3px 0; }
+  .kpi-line-bar{ height:7px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
+  .kpi-line-bar span{ display:block; height:100%; border-radius:999px; }
+  .kpi-line-status{ font-size:12px; text-align:right; }
+  @media print{
+    .tabbar, .asof, .callout, .print-btn{ display:none !important; }
+    body{ background:#fff; color:#000; }
+    .review-card{ box-shadow:none; border:none; }
+  }
+
+  .glossary{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px 20px; font-size:12px; color:var(--ink-500); background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; }
+  .glossary dt{ font-family:'Plex Mono',monospace; font-weight:600; color:var(--ink-700); }
+  .glossary dd{ margin:1px 0 0; }
+  .page-footer{ display:flex; justify-content:space-between; gap:16px; margin-top:18px; font-size:12px; color:var(--ink-400); flex-wrap:wrap; }
+
+  @media (max-width: 980px){
+    .kpi-grid{ grid-template-columns:repeat(2,1fr); }
+    .cat-grid{ grid-template-columns:repeat(2,1fr); }
+    .glossary{ grid-template-columns:repeat(2,1fr); }
+    .kpi-line{ grid-template-columns:1fr; gap:6px; }
+  }
+  @media (max-width: 620px){
+    .kpi-grid, .cat-grid, .glossary{ grid-template-columns:1fr; }
+    .bar-row{ grid-template-columns:110px 1fr 64px; }
+  }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="masthead-eyebrow">Regional Office · Salem — EPFO</div>
+      <h1>Vishwas Performance Dashboard</h1>
+      <p>Enforcement Officer and Dealing Assistant performance under VISHWAS, 2026, with a ready weekly pack for Zonal Office review.</p>
+    </div>
+    <div class="asof">
+      <span class="asof-badge"><span class="asof-dot"></span> Data as of <span id="asof-date">—</span></span>
+      <span class="asof-sub">Snapshot from the shared register</span>
+    </div>
+  </header>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tabbtn active" data-tab="overview">Office Overview</button>
+    <button class="tabbtn" data-tab="eo">Enforcement Officers</button>
+    <button class="tabbtn" data-tab="da">Dealing Assistants</button>
+    <button class="tabbtn" data-tab="zonal">Zonal Weekly Review</button>
+  </nav>
+
+  <!-- ================= TAB 1: OVERVIEW ================= -->
+  <section class="tabpanel active" id="tab-overview">
+    <section class="section">
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Eligible establishments</div>
+          <div class="kpi-value" id="ov-total">—</div>
+          <div class="kpi-sub" id="ov-total-sub"></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Outreach done</div>
+          <div class="kpi-value" id="ov-outreach">—</div>
+          <div class="kpi-sub" id="ov-outreach-sub">emailed or SMS&#8209;ed</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill good" id="ov-outreach-bar" style="width:0%"></div></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">DA assigned</div>
+          <div class="kpi-value" id="ov-da">—</div>
+          <div class="kpi-sub" id="ov-da-sub"></div>
+          <div class="kpi-bar"><div class="kpi-bar-fill warn" id="ov-da-bar" style="width:0%"></div></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Applications received</div>
+          <div class="kpi-value" id="ov-apps">—</div>
+          <div class="kpi-sub">EO target achieved</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill crit" id="ov-apps-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="callout pos">
+        <span class="callout-icon">✓</span>
+        <span><b>All 102</b> eligible establishments have been contacted at least once (email or SMS) — outreach is complete office-wide. The gap now is conversion: getting those contacts to actually file a Vishwas application.</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Progress by category</h2><p>Each of the four case categories, with outreach, DA-assignment and application status.</p></div>
+      </div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Where cases stand in the pipeline</h2><p>Every eligible case moves left to right. The office-wide bottleneck is visible at a glance.</p></div>
+      </div>
+      <div class="chart-card">
+        <div id="funnel"></div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ================= TAB 2: ENFORCEMENT OFFICERS ================= -->
+  <section class="tabpanel" id="tab-eo">
+    <section class="section">
+      <div class="section-head">
+        <div><h2>EO target achievement</h2><p>Target is met the moment an establishment's Vishwas application is received in office — everything after that is the DA/SS/APFC's stage, not the EO's.</p></div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi">
+          <div class="kpi-label">Office-wide target achieved</div>
+          <div class="kpi-value" id="eo-target">—</div>
+          <div class="kpi-sub">applications received ÷ eligible cases</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Outreach coverage</div>
+          <div class="kpi-value" id="eo-outreach">—</div>
+          <div class="kpi-sub">at least one contact made</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Follow-up (SMS) coverage</div>
+          <div class="kpi-value" id="eo-sms">—</div>
+          <div class="kpi-sub">office-wide</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Caseload &amp; outreach by officer</h2><p>Establishments assigned per division, split by category — hover a segment for the exact count.</p></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-legend">
+          <span><i style="background:var(--cat1)"></i>Category I</span>
+          <span><i style="background:var(--cat2)"></i>Category II</span>
+          <span><i style="background:var(--cat3)"></i>Category III</span>
+        </div>
+        <div id="eo-bar-chart"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Officer-wise detail</h2><p>Sortable — click a column header.</p></div>
+      </div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box"><input type="text" id="eo-search" placeholder="Search officer or division…"></div>
+          <div class="table-hint" id="eo-row-count"></div>
+        </div>
+        <div class="table-scroll">
+          <table id="eo-table">
+            <thead>
+              <tr>
+                <th data-key="division">Div<span class="sort-ind">▲</span></th>
+                <th data-key="name">Officer<span class="sort-ind">▲</span></th>
+                <th class="num" data-key="total">Cases<span class="sort-ind">▲</span></th>
+                <th data-key="outreachPct">Outreach<span class="sort-ind">▲</span></th>
+                <th data-key="smsPct">SMS follow-up<span class="sort-ind">▲</span></th>
+                <th class="num" data-key="da">DA assigned<span class="sort-ind">▲</span></th>
+                <th data-key="apps">Target achieved<span class="sort-ind">▲</span></th>
+              </tr>
+            </thead>
+            <tbody id="eo-tbody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">Office total (13 divisions)</td>
+                <td class="num mono" id="eo-foot-total"></td>
+                <td class="mono" id="eo-foot-outreach"></td>
+                <td class="mono" id="eo-foot-sms"></td>
+                <td class="num mono" id="eo-foot-da"></td>
+                <td class="mono" id="eo-foot-apps"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ================= TAB 3: DEALING ASSISTANTS ================= -->
+  <section class="tabpanel" id="tab-da">
+    <section class="section">
+      <div class="callout neu">
+        <span class="callout-icon">i</span>
+        <span>DA-wise <b>turnaround time</b> (how fast an application is processed once received) needs one more field in the register — a "date forwarded by DA to SS" — before it can be measured. Until then, this tab tracks <b>DA assignment coverage</b>, which is measurable today.</span>
+      </div>
+      <div class="section-head">
+        <div><h2>DA assignment coverage</h2><p>Whether an establishment's file has a named Dealing Assistant yet, by category.</p></div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi">
+          <div class="kpi-label">Cases with a DA assigned</div>
+          <div class="kpi-value" id="da-total">—</div>
+          <div class="kpi-sub">of 102 eligible cases</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Active Dealing Assistants</div>
+          <div class="kpi-value" id="da-count">—</div>
+          <div class="kpi-sub">currently named in the register</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Categories with DA assignment started</div>
+          <div class="kpi-value" id="da-cats">—</div>
+          <div class="kpi-sub" id="da-cats-sub"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>By Dealing Assistant</h2><p>Caseload currently assigned to each DA. Processing-time KPIs will appear here once dates are logged.</p></div>
+      </div>
+      <div class="da-grid" id="da-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>By category</h2><p>DA assignment has only started in one of the three active categories.</p></div>
+      </div>
+      <div class="chart-card">
+        <div id="da-cat-bars"></div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ================= TAB 4: ZONAL WEEKLY REVIEW ================= -->
+  <section class="tabpanel" id="tab-zonal">
+    <div class="review-card" id="review-card">
+      <div class="review-header">
+        <div>
+          <h3>Weekly Review Pack — R.O. Salem</h3>
+          <p>Week ending 27 Jul 2026 · For Zonal Office review · VISHWAS, 2026</p>
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
+      </div>
+
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th class="num">Eligible</th>
+            <th class="num">Outreach done</th>
+            <th class="num">Applications received</th>
+            <th class="num">Pending &gt;15 days</th>
+            <th class="num">Rejected</th>
+            <th class="num">Certificates issued</th>
+          </tr>
+        </thead>
+        <tbody id="review-tbody"></tbody>
+        <tfoot>
+          <tr>
+            <td>Office total</td>
+            <td class="num mono" id="rv-foot-total"></td>
+            <td class="num mono" id="rv-foot-outreach"></td>
+            <td class="num mono" id="rv-foot-apps"></td>
+            <td class="num mono">0</td>
+            <td class="num mono">0</td>
+            <td class="num mono">0</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="section-head" style="margin-bottom:12px;">
+        <div><h2 style="font-size:14.5px;">Official KPI scorecard</h2><p>As defined in the compliance circular, with weightage.</p></div>
+      </div>
+      <div class="kpi-scorecard" id="kpi-scorecard"></div>
+    </div>
+  </section>
+
+  <section class="section" style="margin-top:34px;">
+    <dl class="glossary">
+      <div><dt>§14B</dt><dd>Damages assessed under Section 14B, EPF &amp; MP Act</dd></div>
+      <div><dt>§7Q</dt><dd>Interest assessed under Section 7Q, EPF &amp; MP Act</dd></div>
+      <div><dt>Vishwas</dt><dd>One-time settlement scheme for pending §14B / §7Q dues</dd></div>
+      <div><dt>DA</dt><dd>Dealing Assistant handling the establishment file</dd></div>
+      <div><dt>SS</dt><dd>Section Supervisor — recommends after DA processing</dd></div>
+      <div><dt>APFC</dt><dd>Assistant PF Commissioner — final approving authority</dd></div>
+      <div><dt>EO</dt><dd>Enforcement Officer — division in-charge, does outreach</dd></div>
+      <div><dt>RRC</dt><dd>Recovery certificate for a finalised, unpaid 14B order</dd></div>
+    </dl>
+  </section>
+
+  <footer class="page-footer">
+    <span>Built from the shared Google Sheet — a point-in-time snapshot, refreshed automatically. Two sample/test entries were excluded from application figures.</span>
+    <span>Category IV (notice not yet issued) currently holds 0 logged establishments.</span>
+  </footer>
+
+</div>
+
+<div class="chart-tooltip" id="tooltip"></div>
+
+<script>
+/* BEGIN_DATA — regenerated by build.py on every refresh, do not hand-edit between the markers */
+const DATA = __DATA_JSON__;
+/* END_DATA */
+const { asOf, officers: OFFICERS, categories: CATEGORIES, das: DAS, daUnassignedCat2: DA_UNASSIGNED_CAT2 } = DATA;
+document.getElementById('asof-date').textContent = asOf;
+
+function indianFmt(num){
+  num = Math.round(num);
+  const neg = num < 0; num = Math.abs(num);
+  let s = String(num);
+  let last3 = s.slice(-3);
+  let rest = s.slice(0, -3);
+  if (rest !== '') last3 = ',' + last3;
+  rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+  return (neg ? '-' : '') + rest + last3;
+}
+function inr(num){ return '₹' + indianFmt(num); }
+function crLakh(num){
+  const abs = Math.abs(num);
+  if (abs >= 1e7) return '₹' + (num/1e7).toFixed(2) + ' Cr';
+  if (abs >= 1e5) return '₹' + (num/1e5).toFixed(2) + ' L';
+  return inr(num);
+}
+function pct(n, d){ return d > 0 ? (n/d*100) : null; }
+function fmtPct(n, d){ const p = pct(n,d); return p === null ? '—' : p.toFixed(1) + '%'; }
+
+OFFICERS.forEach(o => { o.total = o.c1 + o.c2 + o.c3; });
+
+const GRAND = {
+  total: CATEGORIES.reduce((a,c)=>a+c.count,0),
+  email: CATEGORIES.reduce((a,c)=>a+c.email,0),
+  sms: CATEGORIES.reduce((a,c)=>a+c.sms,0),
+  da: CATEGORIES.reduce((a,c)=>a+c.da,0),
+  apps: CATEGORIES.reduce((a,c)=>a+c.apps,0),
+};
+
+/* ---------------- Tabs ---------------- */
+document.querySelectorAll('.tabbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- Tooltip ---------------- */
+const tooltip = document.getElementById('tooltip');
+function segTooltip(html, evt){ tooltip.innerHTML = html; tooltip.classList.add('show'); moveTooltip(evt); }
+function moveTooltip(evt){ tooltip.style.left = (evt.clientX + 14) + 'px'; tooltip.style.top = (evt.clientY + 14) + 'px'; }
+function hideTooltip(){ tooltip.classList.remove('show'); }
+
+/* ================= OVERVIEW TAB ================= */
+document.getElementById('ov-total').textContent = GRAND.total;
+document.getElementById('ov-total-sub').textContent =
+  CATEGORIES.filter(c => !c.notStarted).map(c => c.count + ' ' + c.title.toLowerCase()).join(' · ');
+document.getElementById('ov-outreach').textContent = GRAND.email + ' / ' + GRAND.total;
+document.getElementById('ov-outreach-sub').textContent = fmtPct(GRAND.email, GRAND.total) + ' contacted';
+document.getElementById('ov-outreach-bar').style.width = pct(GRAND.email, GRAND.total).toFixed(1) + '%';
+document.getElementById('ov-da').textContent = GRAND.da + ' / ' + GRAND.total;
+document.getElementById('ov-da-sub').textContent = fmtPct(GRAND.da, GRAND.total) + ' have a named DA';
+document.getElementById('ov-da-bar').style.width = pct(GRAND.da, GRAND.total).toFixed(1) + '%';
+document.getElementById('ov-apps').textContent = GRAND.apps + ' / ' + GRAND.total;
+document.getElementById('ov-apps-bar').style.width = Math.max(pct(GRAND.apps, GRAND.total), 1.5) + '%';
+
+const catGrid = document.getElementById('cat-grid');
+CATEGORIES.forEach(c => {
+  const el = document.createElement('div');
+  el.className = 'cat-card' + (c.notStarted ? ' not-started' : '');
+  el.style.setProperty('--cat-color', c.color);
+  const outreachPct = c.count ? c.email/c.count*100 : 0;
+  const daPct = c.count ? c.da/c.count*100 : 0;
+  el.innerHTML = `
+    <div class="cat-card-top"><span class="cat-tag">${c.tag}</span><span class="cat-count">${c.count}</span></div>
+    <div><div class="cat-title">${c.title}</div><div class="cat-desc">${c.desc}</div></div>
+    ${c.notStarted ? `<div class="cat-note">No establishments logged in this category yet.</div>` : `
+      <div class="metric-row"><span>Outreach done</span><span class="val">${c.email}/${c.count}</span></div>
+      <div class="mini-bar"><span style="width:${outreachPct}%; background:var(--good)"></span></div>
+      <div class="metric-row"><span>DA assigned</span><span class="val">${c.da}/${c.count}</span></div>
+      <div class="mini-bar"><span style="width:${Math.max(daPct, c.da?2:0)}%; background:var(--warn)"></span></div>
+      <div class="metric-row"><span>Applications received</span><span class="val">${c.apps}/${c.count}</span></div>
+    `}
+  `;
+  catGrid.appendChild(el);
+});
+
+/* Funnel */
+const funnelStages = [
+  {label:"Eligible establishments", value: GRAND.total, color:"var(--accent)"},
+  {label:"Outreach done", value: GRAND.email, color:"var(--good)"},
+  {label:"DA assigned", value: GRAND.da, color:"var(--warn)"},
+  {label:"Application received", value: GRAND.apps, color:"var(--crit)"},
+  {label:"Approved by APFC", value: 0, color:"var(--crit)"},
+  {label:"Certificate issued", value: 0, color:"var(--crit)"},
+];
+const funnelEl = document.getElementById('funnel');
+const funnelMax = funnelStages[0].value;
+funnelStages.forEach(s => {
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.style.gridTemplateColumns = '190px 1fr 90px';
+  const w = (s.value / funnelMax * 100).toFixed(1);
+  row.innerHTML = `
+    <div class="bar-name">${s.label}</div>
+    <div class="bar-track"><div class="bar-seg" style="width:${w}%; background:${s.color}"></div></div>
+    <div class="bar-total">${s.value}</div>
+  `;
+  funnelEl.appendChild(row);
+});
+
+/* ================= EO TAB ================= */
+document.getElementById('eo-target').textContent = fmtPct(GRAND.apps, GRAND.total);
+document.getElementById('eo-outreach').textContent = fmtPct(GRAND.email, GRAND.total);
+document.getElementById('eo-sms').textContent = fmtPct(GRAND.sms, GRAND.total);
+
+const eoBarChart = document.getElementById('eo-bar-chart');
+const eoMax = Math.max(...OFFICERS.map(o => o.total));
+const eoOrder = [...OFFICERS].sort((a,b) => b.total - a.total);
+eoOrder.forEach(o => {
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  const widthPct = (o.total / eoMax * 100).toFixed(1);
+  row.innerHTML = `
+    <div><div class="bar-name">${o.name}</div><div class="bar-div">Div ${o.division}</div></div>
+    <div class="bar-track" style="width:100%">
+      <div class="bar-track" style="width:${widthPct}%; background:none;">
+        ${o.c1 ? `<div class="bar-seg seg1" style="width:${o.c1/o.total*100}%; background:var(--cat1)"></div>` : ''}
+        ${o.c2 ? `<div class="bar-seg seg2" style="width:${o.c2/o.total*100}%; background:var(--cat2)"></div>` : ''}
+        ${o.c3 ? `<div class="bar-seg seg3" style="width:${o.c3/o.total*100}%; background:var(--cat3)"></div>` : ''}
+      </div>
+    </div>
+    <div class="bar-total">${o.total} case${o.total===1?'':'s'}</div>
+  `;
+  eoBarChart.appendChild(row);
+  const segs = [['seg1','Category I',o.c1],['seg2','Category II',o.c2],['seg3','Category III',o.c3]];
+  segs.forEach(([cls,label,val]) => {
+    const node = row.querySelector('.' + cls);
+    if(!node) return;
+    node.addEventListener('mousemove', evt => segTooltip(`<b>${val}</b> ${label.toLowerCase()} case${val===1?'':'s'}<br>${o.name} · Div ${o.division}`, evt));
+    node.addEventListener('mouseleave', hideTooltip);
+  });
+});
+
+const eoTbody = document.getElementById('eo-tbody');
+const eoSearch = document.getElementById('eo-search');
+const eoRowCount = document.getElementById('eo-row-count');
+let eoSortKey = 'division', eoSortDir = 1;
+
+function renderEoTable(){
+  const q = eoSearch.value.trim().toLowerCase();
+  let rows = OFFICERS.filter(o => !q || o.name.toLowerCase().includes(q) || o.division.includes(q));
+  rows.forEach(o => { o.outreachPct = pct(o.email, o.total); o.smsPct = pct(o.sms, o.total); });
+  rows = [...rows].sort((a,b) => {
+    let av = a[eoSortKey], bv = b[eoSortKey];
+    if (typeof av === 'string') return av.localeCompare(bv) * eoSortDir;
+    return ((av||0) - (bv||0)) * eoSortDir;
+  });
+  eoTbody.innerHTML = rows.map(o => `
+    <tr>
+      <td class="mono officer-div">${o.division}</td>
+      <td class="officer-name">${o.name}</td>
+      <td class="num mono"><b>${o.total}</b></td>
+      <td><div class="meter-cell"><div class="meter"><div class="meter-fill" style="width:${o.outreachPct}%; background:var(--good)"></div></div><span class="meter-pct">${o.outreachPct.toFixed(0)}%</span></div></td>
+      <td><div class="meter-cell"><div class="meter"><div class="meter-fill" style="width:${o.smsPct}%; background:var(--accent)"></div></div><span class="meter-pct">${o.smsPct.toFixed(0)}%</span></div></td>
+      <td class="num mono">${o.da || '<span class="na">—</span>'}</td>
+      <td>${o.apps > 0 ? `<span class="pill good"><i></i>${o.apps} of ${o.total}</span>` : `<span class="pill neutral"><i></i>0 of ${o.total}</span>`}</td>
+    </tr>
+  `).join('');
+  eoRowCount.textContent = rows.length + ' of ' + OFFICERS.length + ' divisions';
+}
+document.querySelectorAll('#eo-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    if (eoSortKey === key) eoSortDir *= -1; else { eoSortKey = key; eoSortDir = (key === 'name' || key === 'division') ? 1 : -1; }
+    document.querySelectorAll('#eo-table thead th').forEach(t => { t.classList.remove('active'); t.querySelector('.sort-ind').textContent = '▲'; });
+    th.classList.add('active'); th.querySelector('.sort-ind').textContent = eoSortDir === 1 ? '▲' : '▼';
+    renderEoTable();
+  });
+});
+eoSearch.addEventListener('input', renderEoTable);
+renderEoTable();
+document.getElementById('eo-foot-total').textContent = GRAND.total;
+document.getElementById('eo-foot-outreach').textContent = fmtPct(GRAND.email, GRAND.total);
+document.getElementById('eo-foot-sms').textContent = fmtPct(GRAND.sms, GRAND.total);
+document.getElementById('eo-foot-da').textContent = GRAND.da;
+document.getElementById('eo-foot-apps').textContent = GRAND.apps + ' of ' + GRAND.total;
+
+/* ================= DA TAB ================= */
+document.getElementById('da-total').textContent = GRAND.da + ' / ' + GRAND.total;
+document.getElementById('da-count').textContent = DAS.length;
+document.getElementById('da-cats').textContent = '1 of 3';
+document.getElementById('da-cats-sub').textContent = 'Category II only — I & III not yet started';
+
+const daGrid = document.getElementById('da-grid');
+DAS.forEach(da => {
+  const el = document.createElement('div');
+  el.className = 'da-card';
+  el.innerHTML = `
+    <div class="da-name">${da.name}</div>
+    <div class="da-count">${da.cases}</div>
+    <div class="da-sub">case${da.cases===1?'':'s'} assigned</div>
+    <div class="da-divs">${da.divisions.map(d => `<span class="da-div-chip">Div ${d}</span>`).join('')}</div>
+  `;
+  daGrid.appendChild(el);
+});
+const unassignedEl = document.createElement('div');
+unassignedEl.className = 'da-card unassigned';
+unassignedEl.innerHTML = `
+  <div class="da-name">Unassigned (Category II)</div>
+  <div class="da-count">${DA_UNASSIGNED_CAT2}</div>
+  <div class="da-sub">case${DA_UNASSIGNED_CAT2===1?'':'s'} still without a named DA</div>
+`;
+daGrid.appendChild(unassignedEl);
+
+const daCatBars = document.getElementById('da-cat-bars');
+[{label:"Category I", count:40, da:0},{label:"Category II", count:14, da:10},{label:"Category III", count:48, da:0}].forEach(c => {
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.style.gridTemplateColumns = '140px 1fr 90px';
+  const w = pct(c.da, c.count);
+  row.innerHTML = `
+    <div class="bar-name">${c.label}</div>
+    <div class="bar-track"><div class="bar-seg" style="width:${Math.max(w,c.da?2:0)}%; background:var(--warn)"></div></div>
+    <div class="bar-total">${c.da} / ${c.count}</div>
+  `;
+  daCatBars.appendChild(row);
+});
+
+/* ================= ZONAL REVIEW TAB ================= */
+const reviewTbody = document.getElementById('review-tbody');
+reviewTbody.innerHTML = CATEGORIES.map(c => `
+  <tr>
+    <td>${c.tag} — ${c.title}</td>
+    <td class="num mono">${c.count}</td>
+    <td class="num mono">${c.email}</td>
+    <td class="num mono">${c.apps}</td>
+    <td class="num mono">0</td>
+    <td class="num mono">0</td>
+    <td class="num mono">0</td>
+  </tr>
+`).join('');
+document.getElementById('rv-foot-total').textContent = GRAND.total;
+document.getElementById('rv-foot-outreach').textContent = GRAND.email;
+document.getElementById('rv-foot-apps').textContent = GRAND.apps;
+
+const cat1Count = (CATEGORIES.find(c => c.id === 'cat1') || {count:0}).count;
+const KPIS = [
+  {title:"Outreach to eligible establishments", weight:20, value: pct(GRAND.email, GRAND.total), status:"measured"},
+  {title:"DA processing within 10 working days", weight:20, value: null, status:"No applications received yet to process"},
+  {title:"Amount communicated within 20 days", weight:25, value: null, status:"No applications received yet"},
+  {title:"Certificate issued within 3 days", weight:10, value: null, status:"No approvals yet"},
+  {title:"Litigation withdrawal filed", weight:25, value: GRAND.apps > 0 ? null : 0, status: GRAND.apps > 0 ? "Awaiting certificate issuance" : `0 of ${cat1Count} Category I cases (none certified yet)`},
+];
+const scorecard = document.getElementById('kpi-scorecard');
+scorecard.innerHTML = KPIS.map(k => {
+  const known = k.value !== null;
+  const barColor = !known ? 'var(--neutral)' : (k.value >= 80 ? 'var(--good)' : k.value >= 40 ? 'var(--warn)' : 'var(--crit)');
+  const pctLabel = known ? k.value.toFixed(1) + '%' : 'N/A';
+  return `
+    <div class="kpi-line">
+      <div class="kpi-line-title">${k.title}</div>
+      <div class="kpi-line-weight">${k.weight}% weight</div>
+      <div class="kpi-line-bar"><span style="width:${known ? Math.max(k.value,2) : 0}%; background:${barColor}"></span></div>
+      <div class="kpi-line-status">${known ? `<b class="mono">${pctLabel}</b>` : `<span class="na">${pctLabel}</span>`}</div>
+    </div>
+    <div style="font-size:11.5px; color:var(--ink-400); margin-top:-6px;">${k.status}</div>
+  `;
+}).join('');
+</script>
