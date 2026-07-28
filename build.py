@@ -104,24 +104,33 @@ def application_stage(app_date, da_date, ss_date, apfc_date, approval_date):
 
 
 def read_outreach():
-    """Reads the "Outreach" tab (added by the office). Its actual layout is
-    long-format, not the wide one-row-per-division layout originally
-    sketched: columns are Division, Name, OUTREACH DETAILS (a metric label
-    like "No.of Employers participated"), DATE, and a 5th "Value" column
-    that holds the actual number (the office adds this whenever they log a
-    figure - it doesn't exist as a header yet on empty rows, which is fine,
-    those just read as 0). Division/Name are only filled on the first row of
-    each division's block and blank on the rows below it, so we track the
-    "current" division while scanning down.
+    """Reads the "Outreach" tab (added by the office). Layout: a title row
+    ("OUTREACH PROGRAM CONDUCTED") sits above the real header row (Division,
+    Name, OUTREACH DETAILS, DATE) - so the header row is NOT always row 0
+    and must be located by scanning. Below the header is a sub-row listing
+    one calendar date per column (15 Jul, 16 Jul, ... 31 Jul); the actual
+    counts for each metric are logged per-day in those columns, so a
+    metric's total is the SUM across all of that row's day-columns, not a
+    single fixed "value" column. Division/Name are only filled on the first
+    row of each division's block and blank on the rows below it, so we
+    track the "current" division while scanning down.
 
     Returns [] if the tab doesn't exist yet or doesn't look like this shape.
     """
     rows = fetch_csv_by_name("Outreach")
     if not rows or len(rows) < 2:
         return []
-    header = [c.strip().lower() for c in rows[0]]
-    if not any("division" in h for h in header) or not any("outreach details" in h for h in header):
-        return []  # gviz fell back to some other tab - not the one we want
+
+    header_row_idx = None
+    header = None
+    for hr in range(min(5, len(rows))):
+        candidate = [c.strip().lower() for c in rows[hr]]
+        if any("division" in h for h in candidate) and any("outreach details" in h for h in candidate):
+            header_row_idx = hr
+            header = candidate
+            break
+    if header_row_idx is None:
+        return []  # gviz fell back to some other tab, or the layout changed again
 
     def col(*names):
         for i, h in enumerate(header):
@@ -133,9 +142,8 @@ def read_outreach():
     c_div = col("division")
     c_name = col("name")
     c_detail = col("outreach details")
-    c_value = col("value", "count", "no.", "number")
-    if c_value is None:
-        c_value = 4  # column E, one past DATE - the office adds this when ready
+    c_date = col("date")
+    value_start = (c_date + 1) if c_date is not None else 5  # day-columns start right after DATE
 
     LABEL_MAP = {
         "venue": "venue",
@@ -152,7 +160,7 @@ def read_outreach():
     by_div = {}
     order = []
     cur_div, cur_name = None, None
-    for r in rows[1:]:
+    for r in rows[header_row_idx + 1:]:
         div_cell = r[c_div].strip() if c_div is not None and len(r) > c_div else ""
         name_cell = r[c_name].strip() if c_name is not None and len(r) > c_name else ""
         if div_cell.isdigit():
@@ -160,7 +168,6 @@ def read_outreach():
         if not cur_div:
             continue
         detail = (r[c_detail].strip().lower() if c_detail is not None and len(r) > c_detail else "")
-        value_raw = r[c_value].strip() if len(r) > c_value else ""
         if cur_div not in by_div:
             by_div[cur_div] = {"division": cur_div, "name": cur_name, "venue": "",
                                 "emails": 0, "sms": 0, "seminars": 0, "webinars": 0,
@@ -170,9 +177,10 @@ def read_outreach():
         for label, key in LABEL_MAP.items():
             if label in detail:
                 if key == "venue":
-                    by_div[cur_div]["venue"] = value_raw
+                    venue_text = next((c.strip() for c in r[value_start:] if c.strip()), "")
+                    by_div[cur_div]["venue"] = venue_text
                 else:
-                    by_div[cur_div][key] = num(value_raw)
+                    by_div[cur_div][key] = sum(num(c) for c in r[value_start:])
                 break
     return [by_div[d] for d in order]
 
