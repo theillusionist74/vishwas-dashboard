@@ -104,16 +104,23 @@ def application_stage(app_date, da_date, ss_date, apfc_date, approval_date):
 
 
 def read_outreach():
-    """Reads the "Outreach Activity" tab if the office has created it yet
-    (one row per division: Division, Name, Emails Sent, SMS Sent, Physical
-    Seminars, Online Webinars, Employers Participated, Employees
-    Participated, Employers Contacted Personally). Returns [] if the tab
-    doesn't exist yet or doesn't look like the right shape."""
-    rows = fetch_csv_by_name("Outreach Activity")
+    """Reads the "Outreach" tab (added by the office). Its actual layout is
+    long-format, not the wide one-row-per-division layout originally
+    sketched: columns are Division, Name, OUTREACH DETAILS (a metric label
+    like "No.of Employers participated"), DATE, and a 5th "Value" column
+    that holds the actual number (the office adds this whenever they log a
+    figure - it doesn't exist as a header yet on empty rows, which is fine,
+    those just read as 0). Division/Name are only filled on the first row of
+    each division's block and blank on the rows below it, so we track the
+    "current" division while scanning down.
+
+    Returns [] if the tab doesn't exist yet or doesn't look like this shape.
+    """
+    rows = fetch_csv_by_name("Outreach")
     if not rows or len(rows) < 2:
         return []
     header = [c.strip().lower() for c in rows[0]]
-    if "division" not in header or not any("email" in h for h in header):
+    if not any("division" in h for h in header) or not any("outreach details" in h for h in header):
         return []  # gviz fell back to some other tab - not the one we want
 
     def col(*names):
@@ -123,35 +130,51 @@ def read_outreach():
                     return i
         return None
 
-    idx = {
-        "division": col("division"),
-        "name": col("name"),
-        "emails": col("emails sent", "no of emails", "no. of emails"),
-        "sms": col("sms sent", "no of sms", "no. of sms"),
-        "seminars": col("physical seminar"),
-        "webinars": col("online webinar"),
-        "employersParticipated": col("employers participated"),
-        "employeesParticipated": col("employees participated"),
-        "employersContacted": col("contacted personally"),
+    c_div = col("division")
+    c_name = col("name")
+    c_detail = col("outreach details")
+    c_value = col("value", "count", "no.", "number")
+    if c_value is None:
+        c_value = 4  # column E, one past DATE - the office adds this when ready
+
+    LABEL_MAP = {
+        "venue": "venue",
+        "employers participated": "employersParticipated",
+        "employees participated": "employeesParticipated",
+        "establishments identified": "establishmentsIdentified",
+        "emails sent": "emails",
+        "sms sent": "sms",
+        "physical seminar": "seminars",
+        "online webinar": "webinars",
+        "contacted personally": "employersContacted",
     }
-    out = []
+
+    by_div = {}
+    order = []
+    cur_div, cur_name = None, None
     for r in rows[1:]:
-        div = r[idx["division"]].strip() if idx["division"] is not None and len(r) > idx["division"] else ""
-        if not div or not div.isdigit():
+        div_cell = r[c_div].strip() if c_div is not None and len(r) > c_div else ""
+        name_cell = r[c_name].strip() if c_name is not None and len(r) > c_name else ""
+        if div_cell.isdigit():
+            cur_div, cur_name = div_cell, name_cell
+        if not cur_div:
             continue
-        def get(key):
-            i = idx[key]
-            return num(r[i]) if i is not None and len(r) > i else 0
-        out.append({
-            "division": div,
-            "name": r[idx["name"]].strip() if idx["name"] is not None and len(r) > idx["name"] else "",
-            "emails": get("emails"), "sms": get("sms"),
-            "seminars": get("seminars"), "webinars": get("webinars"),
-            "employersParticipated": get("employersParticipated"),
-            "employeesParticipated": get("employeesParticipated"),
-            "employersContacted": get("employersContacted"),
-        })
-    return out
+        detail = (r[c_detail].strip().lower() if c_detail is not None and len(r) > c_detail else "")
+        value_raw = r[c_value].strip() if len(r) > c_value else ""
+        if cur_div not in by_div:
+            by_div[cur_div] = {"division": cur_div, "name": cur_name, "venue": "",
+                                "emails": 0, "sms": 0, "seminars": 0, "webinars": 0,
+                                "employersParticipated": 0, "employeesParticipated": 0,
+                                "employersContacted": 0, "establishmentsIdentified": 0}
+            order.append(cur_div)
+        for label, key in LABEL_MAP.items():
+            if label in detail:
+                if key == "venue":
+                    by_div[cur_div]["venue"] = value_raw
+                else:
+                    by_div[cur_div][key] = num(value_raw)
+                break
+    return [by_div[d] for d in order]
 
 
 def main():

@@ -447,9 +447,13 @@
       <div class="section-head">
         <div><h2>Outreach Activity</h2><p>Direct outreach effort by the office, beyond the system-logged email/SMS above.</p></div>
       </div>
-      <div class="callout neu" id="outreach-activity-callout" style="display:none;">
+      <div class="callout neu" id="outreach-missing-callout" style="display:none;">
         <span class="callout-icon">i</span>
-        <span>This isn't in the register yet. Add a tab named exactly <b>"Outreach Activity"</b> with one row per division and columns for Emails Sent, SMS Sent, Physical Seminars, Online Webinars, Employers Participated, Employees Participated, and Employers Contacted Personally — the boxes below will fill in automatically once it exists.</span>
+        <span>This isn't in the register yet. Add a tab named exactly <b>"Outreach Activity"</b> (or use the "Outreach" tab format, one metric per row under each division) — the boxes below will fill in automatically once it exists.</span>
+      </div>
+      <div class="callout neu" id="outreach-novalue-callout" style="display:none;">
+        <span class="callout-icon">i</span>
+        <span>Your <b>"Outreach"</b> tab is set up for all 13 divisions, but no counts have been entered yet — it only has metric labels (Venue, Employers participated, etc.) with nothing in the number column beside them. Fill in a value next to each row and these boxes will update automatically.</span>
       </div>
       <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);" id="outreach-grid">
         <div class="kpi clickable tile-blue" id="oa-emails-box">
@@ -481,6 +485,10 @@
         <div class="kpi clickable tile-blue" id="oa-contacted-box">
           <div class="kpi-label">Employers Contacted Personally</div>
           <div class="kpi-value" id="oa-contacted">—</div>
+        </div>
+        <div class="kpi clickable tile-green" id="oa-identified-box">
+          <div class="kpi-label">Establishments Identified Eligible</div>
+          <div class="kpi-value" id="oa-identified">—</div>
         </div>
       </div>
     </section>
@@ -1060,10 +1068,7 @@ bindClickable(document.getElementById('as-apfc-box'), () => openDrill('Pending a
 
 /* ---------------- Outreach Activity box ---------------- */
 (function renderOutreach(){
-  const hasData = Array.isArray(outreach) && outreach.length > 0;
-  document.getElementById('outreach-activity-callout').style.display = hasData ? 'none' : 'flex';
-
-  const sum = key => outreach.reduce((a, o) => a + (o[key] || 0), 0);
+  const tabExists = Array.isArray(outreach) && outreach.length > 0;
   const metrics = [
     {id:'oa-emails', key:'emails', title:'Emails Sent'},
     {id:'oa-sms', key:'sms', title:'SMS Sent'},
@@ -1072,21 +1077,29 @@ bindClickable(document.getElementById('as-apfc-box'), () => openDrill('Pending a
     {id:'oa-empPart', key:'employersParticipated', title:'Employers Participated'},
     {id:'oa-eeePart', key:'employeesParticipated', title:'Employees Participated'},
     {id:'oa-contacted', key:'employersContacted', title:'Employers Contacted Personally'},
+    {id:'oa-identified', key:'establishmentsIdentified', title:'Establishments Identified Eligible'},
   ];
+  const sum = key => outreach.reduce((a, o) => a + (o[key] || 0), 0);
+  const anyValues = tabExists && metrics.some(m => sum(m.key) > 0);
+
+  document.getElementById('outreach-missing-callout').style.display = tabExists ? 'none' : 'flex';
+  document.getElementById('outreach-novalue-callout').style.display = (tabExists && !anyValues) ? 'flex' : 'none';
+
   metrics.forEach(m => {
     const box = document.getElementById(m.id + '-box');
-    if (!hasData){
+    if (!tabExists){
       document.getElementById(m.id).textContent = '—';
-      bindClickable(box, () => openDrill(m.title, '', [], 'Not tracked in the register yet — see the note above for the tab and columns needed.'));
+      bindClickable(box, () => openDrill(m.title, '', [], 'Not tracked in the register yet — see the note above for the tab needed.'));
       return;
     }
     document.getElementById(m.id).textContent = indianFmt(sum(m.key));
     const rows = outreach
       .filter(o => o[m.key])
       .sort((a,b) => b[m.key] - a[m.key])
-      .map(o => `<tr><td class="mono officer-div">${o.division}</td><td class="officer-name">${OFFICER_NAMES[o.division] || o.name}</td><td class="num mono">${indianFmt(o[m.key])}</td></tr>`);
+      .map(o => `<tr><td class="mono officer-div">${o.division}</td><td class="officer-name">${OFFICER_NAMES[o.division] || o.name}</td>${o.venue ? `<td>${o.venue}</td>` : '<td class="na">—</td>'}<td class="num mono">${indianFmt(o[m.key])}</td></tr>`);
     bindClickable(box, () => openDrillTable(m.title, `${indianFmt(sum(m.key))} total across ${outreach.length} divisions`,
-      ['Div', 'Officer', m.title], rows, 'No divisions have logged this yet.'));
+      ['Div', 'Officer', 'Venue', m.title], rows,
+      anyValues ? 'No divisions have logged this yet.' : 'No counts have been entered against this metric yet — see the note above.'));
   });
 })();
 
