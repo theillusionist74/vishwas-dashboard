@@ -179,10 +179,10 @@
   /* ---- Progress-by-officer-by-category graph ---- */
   .progress-row{ display:grid; grid-template-columns:172px 1fr; align-items:center; gap:14px; padding:9px 6px; border-radius:8px; }
   .progress-row + .progress-row{ border-top:1px solid var(--surface-2); }
-  .progress-trio{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  .progress-trio{ display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; }
   .progress-item{ display:flex; flex-direction:column; gap:4px; }
   .progress-item.empty{ opacity:.35; }
-  .progress-item-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:11.5px; }
+  .progress-item-head{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; font-size:11.5px; }
   .progress-item-cat{ font-family:'Plex Mono',monospace; font-weight:700; letter-spacing:.02em; }
   .progress-item-val{ font-family:'Plex Mono',monospace; color:var(--ink-700); font-variant-numeric:tabular-nums; }
   .progress-item-bar{ height:7px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
@@ -336,10 +336,13 @@
     .kpi-grid{ grid-template-columns:repeat(2,1fr); }
     .cat-grid{ grid-template-columns:repeat(2,1fr); }
     .kpi-line{ grid-template-columns:1fr; gap:6px; }
+    .progress-row{ grid-template-columns:1fr; gap:6px; }
+    .progress-trio{ grid-template-columns:repeat(3, 1fr); }
   }
   @media (max-width: 620px){
     .kpi-grid, .cat-grid{ grid-template-columns:1fr; }
     .bar-row{ grid-template-columns:110px 1fr 64px; }
+    .progress-trio{ grid-template-columns:repeat(2, 1fr); }
     .eligible-banner{ flex-direction:column; align-items:flex-start; }
     .eligible-right{ align-self:flex-end; }
   }
@@ -537,13 +540,14 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>EO wise Workload</h2><p>Establishments assigned per division, split by category. Click a row for the officer, or a segment for that category only.</p></div>
+        <div><h2>EO wise Workload</h2><p>Establishments assigned per officer, split by category. Officers holding an additional-charge division are combined into one entity. Click a row for the officer, or a segment for that category only.</p></div>
       </div>
       <div class="chart-card">
         <div class="chart-legend">
           <span><i style="background:var(--cat1)"></i>Category I</span>
           <span><i style="background:var(--cat2)"></i>Category II</span>
           <span><i style="background:var(--cat3)"></i>Category III</span>
+          <span><i style="background:var(--cat4)"></i>Category IV</span>
         </div>
         <div id="eo-bar-chart"></div>
       </div>
@@ -551,13 +555,15 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>EO wise Category wise Progress</h2><p>Target achieved (application received) as a share of that officer's cases, by category. Click a bar for the case list.</p></div>
+        <div><h2>EO wise Category wise Progress</h2><p>Target achieved (application received) as a share of that officer's cases — total, then by category. Officers holding an additional-charge division are combined into one entity; click a figure to see the case list, or the per-division split if combined.</p></div>
       </div>
       <div class="chart-card">
         <div class="chart-legend">
+          <span><i style="background:var(--accent)"></i>Total</span>
           <span><i style="background:var(--cat1)"></i>Category I</span>
           <span><i style="background:var(--cat2)"></i>Category II</span>
           <span><i style="background:var(--cat3)"></i>Category III</span>
+          <span><i style="background:var(--cat4)"></i>Category IV</span>
         </div>
         <div id="eo-progress-chart"></div>
       </div>
@@ -565,7 +571,7 @@
 
     <section class="section">
       <div class="section-head">
-        <div><h2>EO wise Progress</h2><p>Sortable — click a column header to sort, or a row to see that officer's cases.</p></div>
+        <div><h2>EO wise Progress</h2><p>One row per officer (additional-charge divisions combined). Sortable — click a column header to sort, or a row to see that officer's cases (or per-division split, if combined).</p></div>
       </div>
       <div class="table-card">
         <div class="table-toolbar">
@@ -576,7 +582,7 @@
           <table id="eo-table">
             <thead>
               <tr>
-                <th data-key="division">Div<span class="sort-ind">▲</span></th>
+                <th data-key="divisionSort">Div(s)<span class="sort-ind">▲</span></th>
                 <th data-key="name">Officer<span class="sort-ind">▲</span></th>
                 <th class="num" data-key="total">Cases<span class="sort-ind">▲</span></th>
                 <th data-key="outreachPct">Outreach<span class="sort-ind">▲</span></th>
@@ -588,7 +594,7 @@
             <tbody id="eo-tbody"></tbody>
             <tfoot>
               <tr>
-                <td colspan="2">Office total (13 divisions)</td>
+                <td colspan="2" id="eo-foot-label">Office total (13 divisions)</td>
                 <td class="num mono" id="eo-foot-total"></td>
                 <td class="mono" id="eo-foot-outreach"></td>
                 <td class="mono" id="eo-foot-sms"></td>
@@ -694,7 +700,7 @@
 
   <footer class="page-footer">
     <span>Built from the shared Google Sheet — a point-in-time snapshot, refreshed automatically. Two sample/test entries were excluded from application figures.</span>
-    <span>Category IV (notice not yet issued) currently holds 0 logged establishments.</span>
+    <span id="footer-cat4-note">Category IV (notice not yet issued) currently holds 0 logged establishments.</span>
   </footer>
 
 </div>
@@ -728,7 +734,7 @@
 /* BEGIN_DATA — regenerated by build.py on every refresh, do not hand-edit between the markers */
 const DATA = __DATA_JSON__;
 /* END_DATA */
-const { asOf, roster, cases, cat4Count, outreach } = DATA;
+const { asOf, roster, cases, outreach } = DATA;
 document.getElementById('asof-date').textContent = asOf;
 document.getElementById('review-sub').textContent = 'Week ending ' + asOf + ' · For Zonal Office review · VISHWAS, 2026';
 
@@ -742,8 +748,9 @@ const CATEGORY_META = {
   cat1: {tag:"CATEGORY I",   title:"Ongoing litigation",  desc:"CGIT · High Court · Supreme Court",         color:"var(--cat1)"},
   cat2: {tag:"CATEGORY II",  title:"Finalised 14B / RRC",  desc:"Unpaid or partially paid orders",           color:"var(--cat2)"},
   cat3: {tag:"CATEGORY III", title:"Pre-adjudication",     desc:"Notice issued, order awaited",              color:"var(--cat3)"},
-  cat4: {tag:"CATEGORY IV",  title:"Pre-adjudication",     desc:"Notice not yet issued",                     color:"var(--cat4)", notStarted:true},
+  cat4: {tag:"CATEGORY IV",  title:"Pre-adjudication",     desc:"Notice not yet issued",                     color:"var(--cat4)"},
 };
+const CAT_SHORT = {cat1:"CAT I", cat2:"CAT II", cat3:"CAT III", cat4:"CAT IV"};
 
 function indianFmt(num){
   num = Math.round(num);
@@ -770,9 +777,9 @@ function computeCategories(){
   return ['cat1','cat2','cat3','cat4'].map(id => {
     const meta = CATEGORY_META[id];
     const rows = cases.filter(c => c.category === id);
-    const count = id === 'cat4' ? cat4Count : rows.length;
+    const count = rows.length;
     return {
-      id, tag: meta.tag, title: meta.title, desc: meta.desc, color: meta.color, notStarted: meta.notStarted,
+      id, tag: meta.tag, title: meta.title, desc: meta.desc, color: meta.color, notStarted: count === 0,
       count,
       email: rows.filter(c => c.email).length,
       sms: rows.filter(c => c.sms).length,
@@ -789,6 +796,7 @@ function computeOfficers(){
       c1: rows.filter(c=>c.category==='cat1').length,
       c2: rows.filter(c=>c.category==='cat2').length,
       c3: rows.filter(c=>c.category==='cat3').length,
+      c4: rows.filter(c=>c.category==='cat4').length,
       total: rows.length,
       assessed: rows.reduce((a,c)=>a+(c.assessed||0),0),
       remit14b: rows.reduce((a,c)=>a+(c.remit14b||0),0),
@@ -799,8 +807,31 @@ function computeOfficers(){
       apps1: rows.filter(c=>c.category==='cat1' && c.applicationDate).length,
       apps2: rows.filter(c=>c.category==='cat2' && c.applicationDate).length,
       apps3: rows.filter(c=>c.category==='cat3' && c.applicationDate).length,
+      apps4: rows.filter(c=>c.category==='cat4' && c.applicationDate).length,
     };
   }).sort((a,b) => Number(a.division) - Number(b.division));
+}
+/* Officers who hold more than one division (e.g. an "add. charge" division)
+   are shown as one combined entity across the EO-wise workload/progress
+   views; clicking that entity reveals the per-division split. */
+function computeEOGroups(){
+  const map = {}, order = [];
+  OFFICERS.forEach(o => {
+    const baseName = o.name.replace(/\s*\(add\.\s*charge\)\s*$/i, '').trim();
+    if (!map[baseName]) { map[baseName] = { name: baseName, members: [] }; order.push(baseName); }
+    map[baseName].members.push(o);
+  });
+  return order.map(name => {
+    const members = map[name].members.sort((a,b) => Number(a.division) - Number(b.division));
+    const sum = key => members.reduce((a,m) => a + (m[key] || 0), 0);
+    return {
+      name, members, divisions: members.map(m => m.division),
+      c1: sum('c1'), c2: sum('c2'), c3: sum('c3'), c4: sum('c4'), total: sum('total'),
+      assessed: sum('assessed'), remit14b: sum('remit14b'),
+      email: sum('email'), sms: sum('sms'), da: sum('da'), apps: sum('apps'),
+      apps1: sum('apps1'), apps2: sum('apps2'), apps3: sum('apps3'), apps4: sum('apps4'),
+    };
+  });
 }
 function computeDAs(){
   const map = {};
@@ -816,6 +847,7 @@ function computeDAs(){
 
 const CATEGORIES = computeCategories();
 const OFFICERS = computeOfficers();
+const EO_GROUPS = computeEOGroups();
 const DAS = computeDAs();
 const DA_UNASSIGNED_CAT2 = cases.filter(c => c.category === 'cat2' && !c.da).length;
 const VISHWAS_ELIGIBLE = cases.filter(c => c.category === 'cat1' && c.status7q === 'Fully Remitted');
@@ -835,6 +867,12 @@ const STAGE_DA_LIST = cases.filter(c => c.applicationStage === 'Pending at DA');
 const STAGE_SS_LIST = cases.filter(c => c.applicationStage === 'Pending at SS');
 const STAGE_APFC_LIST = cases.filter(c => c.applicationStage === 'Pending at APFC');
 const STAGE_APPROVED_LIST = cases.filter(c => c.applicationStage === 'Approved');
+{
+  const c4 = CATEGORIES.find(c => c.id === 'cat4');
+  document.getElementById('footer-cat4-note').textContent = c4.count
+    ? `Category IV (notice not yet issued) currently holds ${c4.count} logged establishment${c4.count===1?'':'s'}.`
+    : 'Category IV (notice not yet issued) currently holds 0 logged establishments.';
+}
 
 /* ---------------- Tabs ---------------- */
 document.querySelectorAll('.tabbtn').forEach(btn => {
@@ -944,14 +982,70 @@ function openDrillDivision(div){
   const list = cases.filter(c => c.division === div);
   openDrill(`Division ${div} — ${OFFICER_NAMES[div] || div}`, `${list.length} case${list.length===1?'':'s'} assigned`, list);
 }
-function openDrillDivisionCategory(div, catId){
-  const meta = CATEGORY_META[catId];
-  const list = cases.filter(c => c.division === div && c.category === catId);
-  openDrill(`${meta.tag} — Division ${div} (${OFFICER_NAMES[div] || div})`, `${list.length} case${list.length===1?'':'s'}`, list);
-}
 function openDrillDA(name){
   const list = cases.filter(c => c.da === name);
   openDrill(name, `${list.length} case${list.length===1?'':'s'} assigned`, list);
+}
+function bindDrillRows(handlerFor){
+  document.getElementById('modal-tbody').querySelectorAll('tr').forEach(tr => {
+    const handler = () => handlerFor(tr.dataset.div);
+    tr.tabIndex = 0; tr.setAttribute('role', 'button');
+    tr.addEventListener('click', handler);
+    tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handler(); } });
+  });
+}
+/* Officer holds >1 division — show the per-division split; click a row to
+   drop into that division's actual case list. */
+function openDivisionBreakdown(group){
+  const headers = ['Division','Officer/Charge','Cases','Outreach','DA assigned','Applications'];
+  const rows = group.members.map(m => {
+    const label = OFFICER_NAMES[m.division] || m.name;
+    return `<tr class="clickable" data-div="${m.division}">
+      <td class="mono officer-div">${m.division}</td>
+      <td class="officer-name">${label}</td>
+      <td class="num mono"><b>${m.total}</b></td>
+      <td class="num mono">${fmtPct(m.email, m.total)}</td>
+      <td class="num mono">${m.da || '<span class="na">—</span>'}</td>
+      <td class="num mono">${m.apps} of ${m.total}</td>
+    </tr>`;
+  });
+  openDrillTable(group.name, `${group.total} case${group.total===1?'':'s'} across ${group.members.length} divisions`,
+    headers, rows, 'No cases found.');
+  bindDrillRows(div => openDrillDivision(div));
+}
+/* Officer holds >1 division — show the per-division split for one metric
+   (Total, or a single category's target-achieved figure). */
+function openMetricBreakdown(group, catId){
+  const isTotal = catId === 'total';
+  const meta = isTotal ? null : CATEGORY_META[catId];
+  const countKey = isTotal ? 'total' : 'c' + catId.slice(-1);
+  const appsKey = isTotal ? 'apps' : 'apps' + catId.slice(-1);
+  const title = isTotal ? `${group.name} — Total target achieved` : `${meta.tag} target achieved — ${group.name}`;
+  const headers = ['Division','Officer/Charge','Cases','Applications','%'];
+  const rows = group.members.map(m => {
+    const count = m[countKey], apps = m[appsKey];
+    const p = count ? (apps / count * 100) : null;
+    const label = OFFICER_NAMES[m.division] || m.name;
+    return `<tr class="clickable" data-div="${m.division}">
+      <td class="mono officer-div">${m.division}</td>
+      <td class="officer-name">${label}</td>
+      <td class="num mono">${count}</td>
+      <td class="num mono">${apps}</td>
+      <td class="num mono">${p===null ? '—' : p.toFixed(0)+'%'}</td>
+    </tr>`;
+  });
+  openDrillTable(title, `${group.members.length} divisions under ${group.name}`, headers, rows, 'No data yet.');
+  bindDrillRows(div => {
+    if (isTotal){
+      const list = cases.filter(cc => cc.division === div && cc.applicationDate);
+      openDrill(`Applications received — Division ${div} (${OFFICER_NAMES[div] || div})`, `${list.length} application${list.length===1?'':'s'} received`, list,
+        'No applications received yet.');
+    } else {
+      const list = cases.filter(cc => cc.division === div && cc.category === catId && cc.applicationDate);
+      openDrill(`${meta.tag} target achieved — Division ${div} (${OFFICER_NAMES[div] || div})`, `${list.length} application${list.length===1?'':'s'} received`, list,
+        'No applications received yet for this officer in this category.');
+    }
+  });
 }
 
 /* ================= OVERVIEW TAB ================= */
@@ -964,7 +1058,7 @@ bindClickable(document.getElementById('eligible-box'), () => openDrill(
 document.getElementById('ov-total').textContent = GRAND.total;
 document.getElementById('ov-total-sub').textContent =
   CATEGORIES.filter(c => !c.notStarted).map(c => c.count + ' ' + c.title.toLowerCase()).join(' · ');
-bindClickable(document.getElementById('ov-total-box'), () => openDrill('Eligible establishments', `${GRAND.total} across categories I–III`, cases));
+bindClickable(document.getElementById('ov-total-box'), () => openDrill('Eligible establishments', `${GRAND.total} across categories I–IV`, cases));
 
 document.getElementById('ov-outreach').textContent = OUTREACH_LIST.length + ' / ' + GRAND.total;
 document.getElementById('ov-outreach-sub').textContent = fmtPct(OUTREACH_LIST.length, GRAND.total) + ' contacted';
@@ -1116,72 +1210,90 @@ bindClickable(document.getElementById('eo-sms-box'), () => openDrill('SMS follow
   'No SMS follow-up has been logged yet.'));
 
 const eoBarChart = document.getElementById('eo-bar-chart');
-const eoMax = Math.max(...OFFICERS.map(o => o.total));
-const eoOrder = [...OFFICERS].sort((a,b) => b.total - a.total);
-eoOrder.forEach(o => {
+const eoGroupMax = Math.max(...EO_GROUPS.map(g => g.total));
+const eoGroupOrder = [...EO_GROUPS].sort((a,b) => b.total - a.total);
+eoGroupOrder.forEach(g => {
   const row = document.createElement('div');
   row.className = 'bar-row';
-  const widthPct = (o.total / eoMax * 100).toFixed(1);
+  const widthPct = (g.total / eoGroupMax * 100).toFixed(1);
+  const divLabel = 'Div ' + g.divisions.join(', ');
   row.innerHTML = `
-    <div><div class="bar-name">${o.name}</div><div class="bar-div">Div ${o.division}</div></div>
+    <div><div class="bar-name">${g.name}</div><div class="bar-div">${divLabel}</div></div>
     <div class="bar-track" style="width:100%">
       <div class="bar-track" style="width:${widthPct}%; background:none;">
-        ${o.c1 ? `<div class="bar-seg seg1" style="width:${o.c1/o.total*100}%; background:var(--cat1)"></div>` : ''}
-        ${o.c2 ? `<div class="bar-seg seg2" style="width:${o.c2/o.total*100}%; background:var(--cat2)"></div>` : ''}
-        ${o.c3 ? `<div class="bar-seg seg3" style="width:${o.c3/o.total*100}%; background:var(--cat3)"></div>` : ''}
+        ${g.c1 ? `<div class="bar-seg seg1" style="width:${g.c1/g.total*100}%; background:var(--cat1)"></div>` : ''}
+        ${g.c2 ? `<div class="bar-seg seg2" style="width:${g.c2/g.total*100}%; background:var(--cat2)"></div>` : ''}
+        ${g.c3 ? `<div class="bar-seg seg3" style="width:${g.c3/g.total*100}%; background:var(--cat3)"></div>` : ''}
+        ${g.c4 ? `<div class="bar-seg seg4" style="width:${g.c4/g.total*100}%; background:var(--cat4)"></div>` : ''}
       </div>
     </div>
-    <div class="bar-total">${o.total} case${o.total===1?'':'s'}</div>
+    <div class="bar-total">${g.total} case${g.total===1?'':'s'}</div>
   `;
-  bindClickable(row, () => openDrillDivision(o.division));
+  bindClickable(row, () => g.divisions.length > 1 ? openDivisionBreakdown(g) : openDrillDivision(g.divisions[0]));
   eoBarChart.appendChild(row);
-  const segs = [['seg1','cat1',o.c1],['seg2','cat2',o.c2],['seg3','cat3',o.c3]];
+  const segs = [['seg1','cat1',g.c1],['seg2','cat2',g.c2],['seg3','cat3',g.c3],['seg4','cat4',g.c4]];
   segs.forEach(([cls,catId,val]) => {
     const node = row.querySelector('.' + cls);
     if (!node) return;
     const meta = CATEGORY_META[catId];
-    node.addEventListener('mousemove', evt => segTooltip(`<b>${val}</b> ${meta.title.toLowerCase()} case${val===1?'':'s'}<br>${o.name} · Div ${o.division}`, evt));
+    node.addEventListener('mousemove', evt => segTooltip(`<b>${val}</b> ${meta.title.toLowerCase()} case${val===1?'':'s'}<br>${g.name} · Div ${g.divisions.join(', ')}`, evt));
     node.addEventListener('mouseleave', hideTooltip);
-    node.addEventListener('click', evt => { evt.stopPropagation(); openDrillDivisionCategory(o.division, catId); });
+    node.addEventListener('click', evt => {
+      evt.stopPropagation();
+      const list = cases.filter(cc => g.divisions.includes(cc.division) && cc.category === catId);
+      openDrill(`${meta.tag} — ${g.name}`, `${list.length} case${list.length===1?'':'s'}`, list);
+    });
   });
 });
 
-/* EO wise Category wise Progress (target achieved) */
+/* EO wise Category wise Progress (target achieved) — Total first, then by category */
 const eoProgressChart = document.getElementById('eo-progress-chart');
-[...OFFICERS].sort((a,b) => b.total - a.total).forEach(o => {
+[...EO_GROUPS].sort((a,b) => b.total - a.total).forEach(g => {
   const row = document.createElement('div');
   row.className = 'progress-row';
-  const cats = [
-    {id:'cat1', count:o.c1, apps:o.apps1},
-    {id:'cat2', count:o.c2, apps:o.apps2},
-    {id:'cat3', count:o.c3, apps:o.apps3},
+  const items = [
+    {id:'total', count:g.total, apps:g.apps},
+    {id:'cat1', count:g.c1, apps:g.apps1},
+    {id:'cat2', count:g.c2, apps:g.apps2},
+    {id:'cat3', count:g.c3, apps:g.apps3},
+    {id:'cat4', count:g.c4, apps:g.apps4},
   ];
+  const divLabel = 'Div ' + g.divisions.join(', ');
   row.innerHTML = `
-    <div><div class="bar-name">${o.name}</div><div class="bar-div">Div ${o.division}</div></div>
+    <div><div class="bar-name">${g.name}</div><div class="bar-div">${divLabel}</div></div>
     <div class="progress-trio">
-      ${cats.map(c => {
-        const meta = CATEGORY_META[c.id];
-        if (!c.count) return `<div class="progress-item empty"><div class="progress-item-head"><span class="progress-item-cat" style="color:${meta.color}">${meta.tag}</span><span class="progress-item-val">n/a</span></div><div class="progress-item-bar"><span style="width:0%"></span></div></div>`;
-        const pct = (c.apps / c.count * 100);
-        return `<div class="progress-item" data-cat="${c.id}">
-          <div class="progress-item-head"><span class="progress-item-cat" style="color:${meta.color}">${meta.tag}</span><span class="progress-item-val">${c.apps}/${c.count} (${pct.toFixed(0)}%)</span></div>
-          <div class="progress-item-bar"><span style="width:${Math.max(pct, c.apps?2:0)}%; background:${meta.color}"></span></div>
+      ${items.map(it => {
+        const tag = it.id === 'total' ? 'TOTAL' : CAT_SHORT[it.id];
+        const color = it.id === 'total' ? 'var(--accent)' : CATEGORY_META[it.id].color;
+        if (!it.count) return `<div class="progress-item empty"><div class="progress-item-head"><span class="progress-item-cat" style="color:${color}">${tag}</span><span class="progress-item-val">n/a</span></div><div class="progress-item-bar"><span style="width:0%"></span></div></div>`;
+        const pctv = (it.apps / it.count * 100);
+        return `<div class="progress-item" data-cat="${it.id}">
+          <div class="progress-item-head"><span class="progress-item-cat" style="color:${color}">${tag}</span><span class="progress-item-val">${it.apps}/${it.count} (${pctv.toFixed(0)}%)</span></div>
+          <div class="progress-item-bar"><span style="width:${Math.max(pctv, it.apps?2:0)}%; background:${color}"></span></div>
         </div>`;
       }).join('')}
     </div>
   `;
   eoProgressChart.appendChild(row);
-  cats.forEach(c => {
-    if (!c.count) return;
-    const node = row.querySelector(`.progress-item[data-cat="${c.id}"]`);
+  items.forEach(it => {
+    if (!it.count) return;
+    const node = row.querySelector(`.progress-item[data-cat="${it.id}"]`);
     if (!node) return;
     node.classList.add('clickable');
     node.tabIndex = 0; node.setAttribute('role','button');
     const handler = () => {
-      const list = cases.filter(cc => cc.division === o.division && cc.category === c.id && cc.applicationDate);
-      const meta = CATEGORY_META[c.id];
-      openDrill(`${meta.tag} target achieved — Division ${o.division} (${o.name})`, `${c.apps} of ${c.count} applications received`, list,
-        'No applications received yet for this officer in this category.');
+      if (g.divisions.length > 1){ openMetricBreakdown(g, it.id); return; }
+      const div = g.divisions[0];
+      if (it.id === 'total'){
+        const list = cases.filter(cc => cc.division === div && cc.applicationDate);
+        openDrill(`Applications received — Division ${div} (${g.name})`, `${it.apps} of ${it.count} applications received`, list,
+          'No applications received yet.');
+      } else {
+        const list = cases.filter(cc => cc.division === div && cc.category === it.id && cc.applicationDate);
+        const meta = CATEGORY_META[it.id];
+        openDrill(`${meta.tag} target achieved — Division ${div} (${g.name})`, `${it.apps} of ${it.count} applications received`, list,
+          'No applications received yet for this officer in this category.');
+      }
     };
     node.addEventListener('click', handler);
     node.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); handler(); } });
@@ -1191,39 +1303,41 @@ const eoProgressChart = document.getElementById('eo-progress-chart');
 const eoTbody = document.getElementById('eo-tbody');
 const eoSearch = document.getElementById('eo-search');
 const eoRowCount = document.getElementById('eo-row-count');
-let eoSortKey = 'division', eoSortDir = 1;
+let eoSortKey = 'divisionSort', eoSortDir = 1;
 
 function renderEoTable(){
   const q = eoSearch.value.trim().toLowerCase();
-  let rows = OFFICERS.filter(o => !q || o.name.toLowerCase().includes(q) || o.division.includes(q));
-  rows.forEach(o => { o.outreachPct = pct(o.email, o.total); o.smsPct = pct(o.sms, o.total); });
+  let rows = EO_GROUPS.filter(g => !q || g.name.toLowerCase().includes(q) || g.divisions.join(',').includes(q));
+  rows.forEach(g => { g.outreachPct = pct(g.email, g.total); g.smsPct = pct(g.sms, g.total); g.divisionSort = Number(g.divisions[0]); });
   rows = [...rows].sort((a,b) => {
     let av = a[eoSortKey], bv = b[eoSortKey];
     if (typeof av === 'string') return av.localeCompare(bv) * eoSortDir;
     return ((av||0) - (bv||0)) * eoSortDir;
   });
-  eoTbody.innerHTML = rows.map(o => `
-    <tr class="clickable" data-div="${o.division}">
-      <td class="mono officer-div">${o.division}</td>
-      <td class="officer-name">${o.name}</td>
-      <td class="num mono"><b>${o.total}</b></td>
-      <td><div class="meter-cell"><div class="meter"><div class="meter-fill" style="width:${o.outreachPct}%; background:var(--good)"></div></div><span class="meter-pct">${o.outreachPct.toFixed(0)}%</span></div></td>
-      <td><div class="meter-cell"><div class="meter"><div class="meter-fill" style="width:${o.smsPct}%; background:var(--accent)"></div></div><span class="meter-pct">${o.smsPct.toFixed(0)}%</span></div></td>
-      <td class="num mono">${o.da || '<span class="na">—</span>'}</td>
-      <td>${o.apps > 0 ? `<span class="pill good"><i></i>${o.apps} of ${o.total}</span>` : `<span class="pill neutral"><i></i>0 of ${o.total}</span>`}</td>
+  eoTbody.innerHTML = rows.map((g, i) => `
+    <tr class="clickable" data-idx="${i}">
+      <td class="mono officer-div">${g.divisions.join(', ')}</td>
+      <td class="officer-name">${g.name}</td>
+      <td class="num mono"><b>${g.total}</b></td>
+      <td><div class="meter-cell"><div class="meter"><div class="meter-fill" style="width:${g.outreachPct}%; background:var(--good)"></div></div><span class="meter-pct">${g.outreachPct.toFixed(0)}%</span></div></td>
+      <td><div class="meter-cell"><div class="meter"><div class="meter-fill" style="width:${g.smsPct}%; background:var(--accent)"></div></div><span class="meter-pct">${g.smsPct.toFixed(0)}%</span></div></td>
+      <td class="num mono">${g.da || '<span class="na">—</span>'}</td>
+      <td>${g.apps > 0 ? `<span class="pill good"><i></i>${g.apps} of ${g.total}</span>` : `<span class="pill neutral"><i></i>0 of ${g.total}</span>`}</td>
     </tr>
   `).join('');
-  eoRowCount.textContent = rows.length + ' of ' + OFFICERS.length + ' divisions';
+  eoRowCount.textContent = rows.length + ' of ' + EO_GROUPS.length + ' officers';
   eoTbody.querySelectorAll('tr').forEach(tr => {
+    const g = rows[Number(tr.dataset.idx)];
+    const handler = () => g.divisions.length > 1 ? openDivisionBreakdown(g) : openDrillDivision(g.divisions[0]);
     tr.tabIndex = 0; tr.setAttribute('role','button');
-    tr.addEventListener('click', () => openDrillDivision(tr.dataset.div));
-    tr.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); openDrillDivision(tr.dataset.div); } });
+    tr.addEventListener('click', handler);
+    tr.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); handler(); } });
   });
 }
 document.querySelectorAll('#eo-table thead th').forEach(th => {
   th.addEventListener('click', () => {
     const key = th.dataset.key;
-    if (eoSortKey === key) eoSortDir *= -1; else { eoSortKey = key; eoSortDir = (key === 'name' || key === 'division') ? 1 : -1; }
+    if (eoSortKey === key) eoSortDir *= -1; else { eoSortKey = key; eoSortDir = (key === 'name' || key === 'divisionSort') ? 1 : -1; }
     document.querySelectorAll('#eo-table thead th').forEach(t => { t.classList.remove('active'); t.querySelector('.sort-ind').textContent = '▲'; });
     th.classList.add('active'); th.querySelector('.sort-ind').textContent = eoSortDir === 1 ? '▲' : '▼';
     renderEoTable();
@@ -1231,6 +1345,7 @@ document.querySelectorAll('#eo-table thead th').forEach(th => {
 });
 eoSearch.addEventListener('input', renderEoTable);
 renderEoTable();
+document.getElementById('eo-foot-label').textContent = 'Office total (' + roster.length + ' divisions, ' + EO_GROUPS.length + ' officers)';
 document.getElementById('eo-foot-total').textContent = GRAND.total;
 document.getElementById('eo-foot-outreach').textContent = fmtPct(OUTREACH_LIST.length, GRAND.total);
 document.getElementById('eo-foot-sms').textContent = fmtPct(SMS_LIST.length, GRAND.total);
@@ -1316,7 +1431,7 @@ reviewTbody.querySelectorAll('tr').forEach(tr => {
 document.getElementById('rv-foot-total').textContent = GRAND.total;
 document.getElementById('rv-foot-outreach').textContent = GRAND.email;
 document.getElementById('rv-foot-apps').textContent = GRAND.apps;
-bindClickable(document.getElementById('review-foot-row'), () => openDrill('All eligible establishments', `${GRAND.total} across Categories I–III`, cases));
+bindClickable(document.getElementById('review-foot-row'), () => openDrill('All eligible establishments', `${GRAND.total} across Categories I–IV`, cases));
 
 const cat1Count = (CATEGORIES.find(c => c.id === 'cat1') || {count:0}).count;
 const cat1Cases = cases.filter(c => c.category === 'cat1');

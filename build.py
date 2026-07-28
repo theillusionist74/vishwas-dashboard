@@ -187,8 +187,7 @@ def main():
     cat1 = real_rows(fetch_csv(GIDS["cat1"])[2:], 4)
     cat2 = real_rows(fetch_csv(GIDS["cat2"])[2:], 4)
     cat3 = real_rows(fetch_csv(GIDS["cat3"])[2:], 4)
-    cat4_raw = fetch_csv(GIDS["cat4"])[2:]
-    cat4 = [r for r in cat4_raw if len(r) > 6 and r[6].strip()]
+    cat4 = real_rows(fetch_csv(GIDS["cat4"])[2:], 4)
 
     cases = []
 
@@ -263,13 +262,35 @@ def main():
             "assessed": 0, "remit14b": 0,
         })
 
+    # Category IV columns: same layout as Category III - 2 DA, 3 EO, 4 Div,
+    # 5 Estt code, 6 Estt name, 17 status7q, 18 email sent, 19 sms sent,
+    # 20 application date, 21 DA receipt, 22 SS receipt, 23 APFC receipt,
+    # 25 approval date.
+    for r in cat4:
+        estt = r[5].strip()
+        is_sample = estt in SAMPLE_ESTT_CODES
+        app_date = "" if is_sample else r[20].strip()
+        da_date, ss_date, apfc_date = r[21].strip(), r[22].strip(), r[23].strip()
+        approval_date = r[25].strip() if len(r) > 25 else ""
+        cases.append({
+            "category": "cat4", "division": r[4].strip(), "eo": r[3].strip(),
+            "estt": estt, "esttName": r[6].strip(),
+            "legalForum": "", "caseNo": "",
+            "da": r[2].strip(),
+            "email": bool(r[18].strip()), "sms": bool(r[19].strip()),
+            "applicationDate": fmt_app_date(app_date),
+            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
+            "withdrawalDate": "",
+            "status7q": r[17].strip(),
+            "assessed": 0, "remit14b": 0,
+        })
+
     outreach = read_outreach()
 
     data = {
         "asOf": datetime.date.today().strftime("%d %b %Y"),
         "roster": roster,
         "cases": cases,
-        "cat4Count": len(cat4),
         "outreach": outreach,
     }
 
