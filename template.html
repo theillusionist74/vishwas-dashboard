@@ -90,7 +90,7 @@
   body{
     background:var(--surface-0); color:var(--ink-700);
     font-family:'Plex Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;
+    font-size:15.5px; line-height:1.5; -webkit-font-smoothing:antialiased;
   }
   ::selection{ background:var(--accent-tint-2); }
   a{ color:var(--accent); }
@@ -106,7 +106,7 @@
     flex-wrap:wrap;
   }
   .masthead-eyebrow{
-    font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
     color:var(--accent); margin-bottom:6px; font-family:'Plex Mono', monospace;
   }
   .masthead h1{ font-size:24px; letter-spacing:-0.01em; }
@@ -118,7 +118,7 @@
     font-size:12.5px; color:var(--ink-700); box-shadow:var(--shadow);
   }
   .asof-dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
-  .asof-sub{ font-size:11.5px; color:var(--ink-400); }
+  .asof-sub{ font-size:12.5px; color:var(--ink-400); }
 
   /* ---- Tabs ---- */
   .tabbar{
@@ -140,7 +140,7 @@
   .clickable{ cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
   .clickable:hover{ transform:translateY(-1px); box-shadow:0 6px 18px -6px rgba(16,24,39,0.22); border-color:var(--border-strong); }
   .clickable:active{ transform:translateY(0); }
-  .click-hint{ display:inline-flex; align-items:center; gap:3px; font-size:10.5px; color:var(--accent); font-weight:600; margin-top:9px; }
+  .click-hint{ display:inline-flex; align-items:center; gap:3px; font-size:11.5px; color:var(--accent); font-weight:600; margin-top:9px; }
 
   .kpi-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:14px; }
   .kpi{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; box-shadow:var(--shadow); }
@@ -150,7 +150,7 @@
   .tile-pink{ background:var(--tile-pink); border-color:var(--tile-pink-line); }
   .tile-purple{ background:var(--tile-purple); border-color:var(--tile-purple-line); }
   .tile-teal{ background:var(--tile-teal); border-color:var(--tile-teal-line); }
-  .kpi-label{ font-size:11.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-500); }
+  .kpi-label{ font-size:12.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-500); }
   .kpi-value{ font-family:'Plex Mono', monospace; font-weight:600; font-size:24px; color:var(--ink-900); margin-top:8px; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
   .kpi-value small{ font-size:14px; font-weight:500; color:var(--ink-500); margin-left:2px; }
   .kpi-sub{ margin-top:6px; font-size:12.5px; color:var(--ink-500); }
@@ -173,11 +173,23 @@
   .eligible-desc{ font-size:12.5px; color:var(--ink-500); margin-top:2px; max-width:54ch; }
   .eligible-right{ display:flex; align-items:center; gap:10px; }
   .eligible-count{ font-family:'Plex Mono',monospace; font-weight:700; font-size:30px; color:var(--good); text-align:right; line-height:1; }
-  .eligible-count small{ display:block; font-family:'Plex Sans',sans-serif; font-size:10.5px; font-weight:600; color:var(--ink-500); text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
+  .eligible-count small{ display:block; font-family:'Plex Sans',sans-serif; font-size:11.5px; font-weight:600; color:var(--ink-500); text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
   .eligible-arrow{ font-size:18px; color:var(--good); }
 
+  /* ---- Progress-by-officer-by-category graph ---- */
+  .progress-row{ display:grid; grid-template-columns:172px 1fr; align-items:center; gap:14px; padding:9px 6px; border-radius:8px; }
+  .progress-row + .progress-row{ border-top:1px solid var(--surface-2); }
+  .progress-trio{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  .progress-item{ display:flex; flex-direction:column; gap:4px; }
+  .progress-item.empty{ opacity:.35; }
+  .progress-item-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:11.5px; }
+  .progress-item-cat{ font-family:'Plex Mono',monospace; font-weight:700; letter-spacing:.02em; }
+  .progress-item-val{ font-family:'Plex Mono',monospace; color:var(--ink-700); font-variant-numeric:tabular-nums; }
+  .progress-item-bar{ height:7px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
+  .progress-item-bar span{ display:block; height:100%; border-radius:999px; }
+
   .callout{ display:flex; align-items:center; gap:12px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:13px 16px; margin-bottom:28px; font-size:13.5px; color:var(--ink-700); }
-  .callout-icon{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Plex Mono',monospace; font-weight:600; font-size:13px; }
+  .callout-icon{ flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Plex Mono',monospace; font-weight:600; font-size:14px; }
   .callout.pos .callout-icon{ background:var(--good-tint); color:var(--good); }
   .callout.neu .callout-icon{ background:var(--warn-tint); color:var(--warn); }
   .callout b{ color:var(--ink-900); font-weight:600; }
@@ -191,15 +203,15 @@
   .cat-card{ background:color-mix(in srgb, var(--cat-color, var(--accent)) 10%, var(--surface-1)); border:1px solid color-mix(in srgb, var(--cat-color, var(--accent)) 30%, var(--border)); border-top:3px solid var(--cat-color, var(--accent)); border-radius:var(--radius-md); padding:16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px; }
   .cat-card.not-started{ border-top-style:dashed; border-top-color:var(--border-strong); opacity:.82; }
   .cat-card-top{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
-  .cat-tag{ font-family:'Plex Mono',monospace; font-size:11px; font-weight:600; color:var(--cat-color, var(--ink-500)); letter-spacing:.03em; }
+  .cat-tag{ font-family:'Plex Mono',monospace; font-size:12px; font-weight:600; color:var(--cat-color, var(--ink-500)); letter-spacing:.03em; }
   .cat-count{ font-family:'Plex Mono',monospace; font-weight:600; font-size:20px; color:var(--ink-900); font-variant-numeric:tabular-nums; }
-  .cat-title{ font-size:13px; font-weight:600; color:var(--ink-900); }
-  .cat-desc{ font-size:11.5px; color:var(--ink-500); margin-top:-5px; }
+  .cat-title{ font-size:14px; font-weight:600; color:var(--ink-900); }
+  .cat-desc{ font-size:12.5px; color:var(--ink-500); margin-top:-5px; }
   .metric-row{ display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--ink-500); gap:8px; }
   .metric-row .val{ font-family:'Plex Mono',monospace; font-weight:600; color:var(--ink-900); }
   .mini-bar{ height:5px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
   .mini-bar span{ display:block; height:100%; border-radius:999px; }
-  .cat-note{ font-size:11px; color:var(--ink-400); font-style:italic; }
+  .cat-note{ font-size:12px; color:var(--ink-400); font-style:italic; }
 
   .chart-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 22px 16px; box-shadow:var(--shadow); }
   .chart-legend{ display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
@@ -208,8 +220,8 @@
   .bar-row{ display:grid; grid-template-columns:172px 1fr 100px; align-items:center; gap:12px; padding:7px 6px; border-radius:8px; }
   .bar-row + .bar-row{ border-top:1px solid var(--surface-2); }
   .bar-row.clickable:hover{ background:var(--surface-2); transform:none; box-shadow:none; border-color:transparent; }
-  .bar-name{ font-size:13px; color:var(--ink-900); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .bar-div{ font-family:'Plex Mono',monospace; font-size:11px; color:var(--ink-500); font-weight:500; }
+  .bar-name{ font-size:14px; color:var(--ink-900); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar-div{ font-family:'Plex Mono',monospace; font-size:12px; color:var(--ink-500); font-weight:500; }
   .bar-track{ position:relative; height:18px; display:flex; border-radius:5px; overflow:hidden; background:var(--surface-2); }
   .bar-seg{ height:100%; cursor:pointer; transition:filter .12s; }
   .bar-seg:hover{ filter:brightness(1.12); }
@@ -221,35 +233,35 @@
   .table-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow); overflow:hidden; }
   .table-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
   .search-box{ position:relative; width:230px; }
-  .search-box input{ width:100%; padding:8px 12px 8px 32px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2); color:var(--ink-900); font-size:13px; }
+  .search-box input{ width:100%; padding:8px 12px 8px 32px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2); color:var(--ink-900); font-size:14px; }
   .search-box input:focus{ background:var(--surface-1); }
   .search-box::before{ content:"⌕"; position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--ink-400); font-size:14px; }
   .table-hint{ font-size:12px; color:var(--ink-400); }
   .table-scroll{ overflow-x:auto; }
   table{ width:100%; border-collapse:collapse; min-width:760px; }
-  thead th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:10px 14px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap; }
+  thead th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:10px 14px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap; }
   thead th:hover{ color:var(--ink-900); }
   thead th.num, td.num{ text-align:right; }
   thead th .sort-ind{ font-size:9px; margin-left:3px; opacity:.5; }
   thead th.active .sort-ind{ opacity:1; color:var(--accent); }
-  tbody td{ padding:10px 14px; border-bottom:1px solid var(--surface-2); font-size:13px; vertical-align:middle; }
+  tbody td{ padding:10px 14px; border-bottom:1px solid var(--surface-2); font-size:14px; vertical-align:middle; }
   tbody tr:last-child td{ border-bottom:none; }
   tbody tr:hover{ background:var(--surface-2); }
   td.mono, .mono{ font-family:'Plex Mono',monospace; font-variant-numeric:tabular-nums; }
   .officer-name{ font-weight:600; color:var(--ink-900); }
-  .officer-div{ font-family:'Plex Mono',monospace; font-size:11px; color:var(--ink-500); }
+  .officer-div{ font-family:'Plex Mono',monospace; font-size:12px; color:var(--ink-500); }
   .meter-cell{ display:flex; align-items:center; gap:8px; min-width:120px; }
   .meter{ flex:1; height:6px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
   .meter-fill{ height:100%; border-radius:999px; }
   .meter-pct{ font-family:'Plex Mono',monospace; font-size:12px; color:var(--ink-700); width:36px; text-align:right; }
-  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:3px 8px; border-radius:999px; font-weight:600; white-space:nowrap; }
+  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; padding:3px 8px; border-radius:999px; font-weight:600; white-space:nowrap; }
   .pill.good{ background:var(--good-tint); color:var(--good); }
   .pill.warn{ background:var(--warn-tint); color:var(--warn); }
   .pill.crit{ background:var(--crit-tint); color:var(--crit); }
   .pill.neutral{ background:var(--neutral-tint); color:var(--neutral); }
   .pill i{ width:6px; height:6px; border-radius:50%; background:currentColor; flex:none; }
   .na{ color:var(--ink-400); }
-  tfoot td{ padding:12px 14px; font-weight:600; color:var(--ink-900); background:var(--surface-2); border-top:1px solid var(--border-strong); font-size:13px; }
+  tfoot td{ padding:12px 14px; font-weight:600; color:var(--ink-900); background:var(--surface-2); border-top:1px solid var(--border-strong); font-size:14px; }
 
   /* DA cards */
   .da-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
@@ -259,7 +271,7 @@
   .da-count{ font-family:'Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--ink-900); margin-top:8px; }
   .da-sub{ font-size:12px; color:var(--ink-500); margin-top:4px; }
   .da-divs{ display:flex; gap:5px; margin-top:10px; flex-wrap:wrap; }
-  .da-div-chip{ font-family:'Plex Mono',monospace; font-size:10.5px; background:var(--accent-tint); color:var(--accent); padding:2px 7px; border-radius:5px; font-weight:600; }
+  .da-div-chip{ font-family:'Plex Mono',monospace; font-size:11.5px; background:var(--accent-tint); color:var(--accent); padding:2px 7px; border-radius:5px; font-weight:600; }
 
   /* Zonal review */
   .review-card{ background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:22px 24px; }
@@ -269,20 +281,20 @@
   .print-btn{ appearance:none; border:1px solid var(--border-strong); background:var(--surface-1); color:var(--ink-700); padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
   .print-btn:hover{ background:var(--surface-2); }
   .review-table{ width:100%; border-collapse:collapse; margin-bottom:22px; }
-  .review-table th{ text-align:left; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:8px 10px; border-bottom:1px solid var(--border); }
+  .review-table th{ text-align:left; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:8px 10px; border-bottom:1px solid var(--border); }
   .review-table th.num, .review-table td.num{ text-align:right; }
-  .review-table td{ padding:9px 10px; border-bottom:1px solid var(--surface-2); font-size:13px; }
+  .review-table td{ padding:9px 10px; border-bottom:1px solid var(--surface-2); font-size:14px; }
   .review-table tbody tr.clickable:hover{ background:var(--surface-2); }
   .review-table tfoot td{ font-weight:700; background:var(--surface-2); }
   .kpi-scorecard{ display:flex; flex-direction:column; gap:2px; }
   .kpi-line{ display:grid; grid-template-columns:1fr 90px 1.4fr 130px; align-items:center; gap:14px; padding:10px 8px; border-bottom:1px solid var(--surface-2); border-radius:8px; }
   .kpi-line:last-of-type{ border-bottom:none; }
-  .kpi-line-title{ font-size:13px; font-weight:600; color:var(--ink-900); }
-  .kpi-line-weight{ font-family:'Plex Mono',monospace; font-size:11.5px; color:var(--ink-500); text-align:center; background:var(--surface-2); border-radius:6px; padding:3px 0; }
+  .kpi-line-title{ font-size:14px; font-weight:600; color:var(--ink-900); }
+  .kpi-line-weight{ font-family:'Plex Mono',monospace; font-size:12.5px; color:var(--ink-500); text-align:center; background:var(--surface-2); border-radius:6px; padding:3px 0; }
   .kpi-line-bar{ height:7px; border-radius:999px; background:var(--neutral-tint); overflow:hidden; }
   .kpi-line-bar span{ display:block; height:100%; border-radius:999px; }
   .kpi-line-status{ font-size:12px; text-align:right; }
-  .kpi-line-note{ font-size:11.5px; color:var(--ink-400); margin:-4px 0 6px 8px; }
+  .kpi-line-note{ font-size:12.5px; color:var(--ink-400); margin:-4px 0 6px 8px; }
   @media print{
     .tabbar, .asof, .callout, .print-btn{ display:none !important; }
     body{ background:#fff; color:#000; }
@@ -310,14 +322,14 @@
   .modal-close:hover{ background:var(--neutral-tint); color:var(--ink-900); }
   .modal-body{ overflow:auto; }
   .modal-table{ width:100%; border-collapse:collapse; min-width:700px; }
-  .modal-table th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:9px 14px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .modal-table th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); padding:9px 14px; border-bottom:1px solid var(--border); white-space:nowrap; }
   .modal-table td{ padding:9px 14px; border-bottom:1px solid var(--surface-2); font-size:12.5px; vertical-align:middle; }
   .modal-table tr:last-child td{ border-bottom:none; }
   .modal-table tbody tr:hover{ background:var(--surface-2); }
   .case-name{ font-weight:600; color:var(--ink-900); font-size:12.5px; }
-  .case-sub{ font-size:11px; color:var(--ink-500); margin-top:1px; }
-  .cat-chip{ font-family:'Plex Mono',monospace; font-size:10.5px; font-weight:700; letter-spacing:.02em; }
-  .modal-empty{ display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:56px 24px; color:var(--ink-500); font-size:13px; text-align:center; }
+  .case-sub{ font-size:12px; color:var(--ink-500); margin-top:1px; }
+  .cat-chip{ font-family:'Plex Mono',monospace; font-size:11.5px; font-weight:700; letter-spacing:.02em; }
+  .modal-empty{ display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:56px 24px; color:var(--ink-500); font-size:14px; text-align:center; }
   .modal-empty-icon{ font-size:26px; opacity:.45; }
 
   @media (max-width: 980px){
@@ -404,6 +416,77 @@
 
     <section class="section">
       <div class="section-head">
+        <div><h2>Application Status</h2><p>Where received Vishwas applications currently stand in the approval chain.</p></div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);">
+        <div class="kpi clickable tile-blue" id="as-total-box">
+          <div class="kpi-label">Total Received</div>
+          <div class="kpi-value" id="as-total">—</div>
+        </div>
+        <div class="kpi clickable tile-purple" id="as-cert-box">
+          <div class="kpi-label">Certificate Generated</div>
+          <div class="kpi-value" id="as-cert">—</div>
+          <div class="kpi-sub" id="as-cert-sub"></div>
+        </div>
+        <div class="kpi clickable tile-amber" id="as-da-box">
+          <div class="kpi-label">Pending at DA</div>
+          <div class="kpi-value" id="as-da">—</div>
+        </div>
+        <div class="kpi clickable tile-teal" id="as-ss-box">
+          <div class="kpi-label">Pending at SS</div>
+          <div class="kpi-value" id="as-ss">—</div>
+        </div>
+        <div class="kpi clickable tile-pink" id="as-apfc-box">
+          <div class="kpi-label">Pending at APFC</div>
+          <div class="kpi-value" id="as-apfc">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Outreach Activity</h2><p>Direct outreach effort by the office, beyond the system-logged email/SMS above.</p></div>
+      </div>
+      <div class="callout neu" id="outreach-activity-callout" style="display:none;">
+        <span class="callout-icon">i</span>
+        <span>This isn't in the register yet. Add a tab named exactly <b>"Outreach Activity"</b> with one row per division and columns for Emails Sent, SMS Sent, Physical Seminars, Online Webinars, Employers Participated, Employees Participated, and Employers Contacted Personally — the boxes below will fill in automatically once it exists.</span>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);" id="outreach-grid">
+        <div class="kpi clickable tile-blue" id="oa-emails-box">
+          <div class="kpi-label">Emails Sent</div>
+          <div class="kpi-value" id="oa-emails">—</div>
+        </div>
+        <div class="kpi clickable tile-green" id="oa-sms-box">
+          <div class="kpi-label">SMS Sent</div>
+          <div class="kpi-value" id="oa-sms">—</div>
+        </div>
+        <div class="kpi clickable tile-amber" id="oa-seminars-box">
+          <div class="kpi-label">Physical Seminars</div>
+          <div class="kpi-value" id="oa-seminars">—</div>
+        </div>
+        <div class="kpi clickable tile-teal" id="oa-webinars-box">
+          <div class="kpi-label">Online Webinars</div>
+          <div class="kpi-value" id="oa-webinars">—</div>
+        </div>
+        <div class="kpi clickable tile-purple" id="oa-empPart-box">
+          <div class="kpi-label">Employers Participated</div>
+          <div class="kpi-value" id="oa-empPart">—</div>
+          <div class="kpi-sub">in seminars / webinars</div>
+        </div>
+        <div class="kpi clickable tile-pink" id="oa-eeePart-box">
+          <div class="kpi-label">Employees Participated</div>
+          <div class="kpi-value" id="oa-eeePart">—</div>
+          <div class="kpi-sub">in seminars / webinars</div>
+        </div>
+        <div class="kpi clickable tile-blue" id="oa-contacted-box">
+          <div class="kpi-label">Employers Contacted Personally</div>
+          <div class="kpi-value" id="oa-contacted">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
         <div><h2>Progress by category</h2></div>
       </div>
       <div class="cat-grid" id="cat-grid"></div>
@@ -455,6 +538,20 @@
           <span><i style="background:var(--cat3)"></i>Category III</span>
         </div>
         <div id="eo-bar-chart"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>EO wise Category wise Progress</h2><p>Target achieved (application received) as a share of that officer's cases, by category. Click a bar for the case list.</p></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-legend">
+          <span><i style="background:var(--cat1)"></i>Category I</span>
+          <span><i style="background:var(--cat2)"></i>Category II</span>
+          <span><i style="background:var(--cat3)"></i>Category III</span>
+        </div>
+        <div id="eo-progress-chart"></div>
       </div>
     </section>
 
@@ -605,7 +702,7 @@
     <div class="modal-body">
       <table class="modal-table" id="modal-table">
         <thead>
-          <tr>
+          <tr id="modal-thead-row">
             <th>Div</th><th>Officer</th><th>Category</th><th>Establishment</th><th>DA</th><th>Outreach</th><th>Application</th><th>§7Q status</th>
           </tr>
         </thead>
@@ -623,7 +720,7 @@
 /* BEGIN_DATA — regenerated by build.py on every refresh, do not hand-edit between the markers */
 const DATA = __DATA_JSON__;
 /* END_DATA */
-const { asOf, roster, cases, cat4Count } = DATA;
+const { asOf, roster, cases, cat4Count, outreach } = DATA;
 document.getElementById('asof-date').textContent = asOf;
 document.getElementById('review-sub').textContent = 'Week ending ' + asOf + ' · For Zonal Office review · VISHWAS, 2026';
 
@@ -691,6 +788,9 @@ function computeOfficers(){
       sms: rows.filter(c=>c.sms).length,
       da: rows.filter(c=>c.da).length,
       apps: rows.filter(c=>c.applicationDate).length,
+      apps1: rows.filter(c=>c.category==='cat1' && c.applicationDate).length,
+      apps2: rows.filter(c=>c.category==='cat2' && c.applicationDate).length,
+      apps3: rows.filter(c=>c.category==='cat3' && c.applicationDate).length,
     };
   }).sort((a,b) => Number(a.division) - Number(b.division));
 }
@@ -723,6 +823,10 @@ const OUTREACH_LIST = cases.filter(c => c.email || c.sms);
 const SMS_LIST = cases.filter(c => c.sms);
 const DA_LIST = cases.filter(c => c.da);
 const APPS_LIST = cases.filter(c => c.applicationDate);
+const STAGE_DA_LIST = cases.filter(c => c.applicationStage === 'Pending at DA');
+const STAGE_SS_LIST = cases.filter(c => c.applicationStage === 'Pending at SS');
+const STAGE_APFC_LIST = cases.filter(c => c.applicationStage === 'Pending at APFC');
+const STAGE_APPROVED_LIST = cases.filter(c => c.applicationStage === 'Approved');
 
 /* ---------------- Tabs ---------------- */
 document.querySelectorAll('.tabbtn').forEach(btn => {
@@ -760,11 +864,18 @@ function caseRow(c){
     </td>
     <td>${c.da || '<span class="na">—</span>'}</td>
     <td>${c.email ? '<span class="pill good"><i></i>Emailed</span>' : '<span class="pill neutral"><i></i>No contact</span>'}${c.sms ? ' <span class="pill good"><i></i>SMS</span>' : ''}</td>
-    <td>${c.applicationDate ? `<span class="pill good"><i></i>${c.applicationDate}</span>` : '<span class="pill neutral"><i></i>Not applied</span>'}</td>
+    <td>${c.applicationDate
+        ? `<span class="pill good"><i></i>${c.applicationDate}</span>${c.applicationStage ? `<div class="case-sub">${c.applicationStage}</div>` : ''}`
+        : '<span class="pill neutral"><i></i>Not applied</span>'}</td>
     <td>${statusPill(c.status7q)}</td>
   </tr>`;
 }
+const CASE_TABLE_HEADERS = ['Div','Officer','Category','Establishment','DA','Outreach','Application','§7Q status'];
+function setModalHeaders(headers){
+  document.getElementById('modal-thead-row').innerHTML = headers.map(h => `<th>${h}</th>`).join('');
+}
 function openDrill(title, sub, list, emptyNote){
+  setModalHeaders(CASE_TABLE_HEADERS);
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-sub').textContent = sub || '';
   const tableEl = document.getElementById('modal-table');
@@ -777,6 +888,24 @@ function openDrill(title, sub, list, emptyNote){
     tableEl.style.display = '';
     emptyEl.style.display = 'none';
     document.getElementById('modal-tbody').innerHTML = list.map(caseRow).join('');
+  }
+  document.getElementById('modal-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function openDrillTable(title, sub, headers, rowsHtml, emptyNote){
+  setModalHeaders(headers);
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub || '';
+  const tableEl = document.getElementById('modal-table');
+  const emptyEl = document.getElementById('modal-empty');
+  if (!rowsHtml.length){
+    tableEl.style.display = 'none';
+    emptyEl.style.display = 'flex';
+    document.getElementById('modal-empty-text').textContent = emptyNote || 'No data yet.';
+  } else {
+    tableEl.style.display = '';
+    emptyEl.style.display = 'none';
+    document.getElementById('modal-tbody').innerHTML = rowsHtml.join('');
   }
   document.getElementById('modal-overlay').classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -886,10 +1015,10 @@ const funnelStages = [
   {label:"DA assigned", value: DA_LIST.length, color:"var(--warn)", list: DA_LIST},
   {label:"Application received", value: APPS_LIST.length, color:"var(--crit)", list: APPS_LIST,
     emptyNote:"No Vishwas applications have been received in office yet."},
-  {label:"Approved by APFC", value: 0, color:"var(--crit)", list: [],
+  {label:"Approved by APFC", value: STAGE_APPROVED_LIST.length, color:"var(--crit)", list: STAGE_APPROVED_LIST,
     emptyNote:"No applications have reached APFC approval yet."},
   {label:"Certificate issued", value: 0, color:"var(--crit)", list: [],
-    emptyNote:"No Vishwas certificates have been issued yet."},
+    emptyNote:"Not tracked in the register yet — add a \"Certificate issued date\" column to enable this."},
 ];
 const funnelEl = document.getElementById('funnel');
 const funnelMax = funnelStages[0].value;
@@ -906,6 +1035,60 @@ funnelStages.forEach(s => {
   bindClickable(row, () => openDrill(s.label, `${s.value} of ${GRAND.total} cases`, s.list, s.emptyNote));
   funnelEl.appendChild(row);
 });
+
+/* ---------------- Application Status box ---------------- */
+document.getElementById('as-total').textContent = APPS_LIST.length;
+bindClickable(document.getElementById('as-total-box'), () => openDrill('Applications Received', `${APPS_LIST.length} of ${GRAND.total} — EO target achieved`, APPS_LIST,
+  'No Vishwas applications have been received in office yet.'));
+
+document.getElementById('as-cert').textContent = '—';
+document.getElementById('as-cert-sub').textContent = 'Not yet tracked';
+bindClickable(document.getElementById('as-cert-box'), () => openDrill('Certificate Generated', '', [],
+  'Not tracked in the register yet — add a "Certificate issued date" column to enable this.'));
+
+document.getElementById('as-da').textContent = STAGE_DA_LIST.length;
+bindClickable(document.getElementById('as-da-box'), () => openDrill('Pending at DA', `${STAGE_DA_LIST.length} application${STAGE_DA_LIST.length===1?'':'s'}`, STAGE_DA_LIST,
+  'No applications are currently pending at DA level.'));
+
+document.getElementById('as-ss').textContent = STAGE_SS_LIST.length;
+bindClickable(document.getElementById('as-ss-box'), () => openDrill('Pending at SS', `${STAGE_SS_LIST.length} application${STAGE_SS_LIST.length===1?'':'s'}`, STAGE_SS_LIST,
+  'No applications are currently pending at SS level.'));
+
+document.getElementById('as-apfc').textContent = STAGE_APFC_LIST.length;
+bindClickable(document.getElementById('as-apfc-box'), () => openDrill('Pending at APFC', `${STAGE_APFC_LIST.length} application${STAGE_APFC_LIST.length===1?'':'s'}`, STAGE_APFC_LIST,
+  'No applications are currently pending at APFC level.'));
+
+/* ---------------- Outreach Activity box ---------------- */
+(function renderOutreach(){
+  const hasData = Array.isArray(outreach) && outreach.length > 0;
+  document.getElementById('outreach-activity-callout').style.display = hasData ? 'none' : 'flex';
+
+  const sum = key => outreach.reduce((a, o) => a + (o[key] || 0), 0);
+  const metrics = [
+    {id:'oa-emails', key:'emails', title:'Emails Sent'},
+    {id:'oa-sms', key:'sms', title:'SMS Sent'},
+    {id:'oa-seminars', key:'seminars', title:'Physical Seminars Conducted'},
+    {id:'oa-webinars', key:'webinars', title:'Online Webinars Conducted'},
+    {id:'oa-empPart', key:'employersParticipated', title:'Employers Participated'},
+    {id:'oa-eeePart', key:'employeesParticipated', title:'Employees Participated'},
+    {id:'oa-contacted', key:'employersContacted', title:'Employers Contacted Personally'},
+  ];
+  metrics.forEach(m => {
+    const box = document.getElementById(m.id + '-box');
+    if (!hasData){
+      document.getElementById(m.id).textContent = '—';
+      bindClickable(box, () => openDrill(m.title, '', [], 'Not tracked in the register yet — see the note above for the tab and columns needed.'));
+      return;
+    }
+    document.getElementById(m.id).textContent = indianFmt(sum(m.key));
+    const rows = outreach
+      .filter(o => o[m.key])
+      .sort((a,b) => b[m.key] - a[m.key])
+      .map(o => `<tr><td class="mono officer-div">${o.division}</td><td class="officer-name">${OFFICER_NAMES[o.division] || o.name}</td><td class="num mono">${indianFmt(o[m.key])}</td></tr>`);
+    bindClickable(box, () => openDrillTable(m.title, `${indianFmt(sum(m.key))} total across ${outreach.length} divisions`,
+      ['Div', 'Officer', m.title], rows, 'No divisions have logged this yet.'));
+  });
+})();
 
 /* ================= EO TAB ================= */
 document.getElementById('eo-target').textContent = fmtPct(APPS_LIST.length, GRAND.total);
@@ -947,6 +1130,48 @@ eoOrder.forEach(o => {
     node.addEventListener('mousemove', evt => segTooltip(`<b>${val}</b> ${meta.title.toLowerCase()} case${val===1?'':'s'}<br>${o.name} · Div ${o.division}`, evt));
     node.addEventListener('mouseleave', hideTooltip);
     node.addEventListener('click', evt => { evt.stopPropagation(); openDrillDivisionCategory(o.division, catId); });
+  });
+});
+
+/* EO wise Category wise Progress (target achieved) */
+const eoProgressChart = document.getElementById('eo-progress-chart');
+[...OFFICERS].sort((a,b) => b.total - a.total).forEach(o => {
+  const row = document.createElement('div');
+  row.className = 'progress-row';
+  const cats = [
+    {id:'cat1', count:o.c1, apps:o.apps1},
+    {id:'cat2', count:o.c2, apps:o.apps2},
+    {id:'cat3', count:o.c3, apps:o.apps3},
+  ];
+  row.innerHTML = `
+    <div><div class="bar-name">${o.name}</div><div class="bar-div">Div ${o.division}</div></div>
+    <div class="progress-trio">
+      ${cats.map(c => {
+        const meta = CATEGORY_META[c.id];
+        if (!c.count) return `<div class="progress-item empty"><div class="progress-item-head"><span class="progress-item-cat" style="color:${meta.color}">${meta.tag}</span><span class="progress-item-val">n/a</span></div><div class="progress-item-bar"><span style="width:0%"></span></div></div>`;
+        const pct = (c.apps / c.count * 100);
+        return `<div class="progress-item" data-cat="${c.id}">
+          <div class="progress-item-head"><span class="progress-item-cat" style="color:${meta.color}">${meta.tag}</span><span class="progress-item-val">${c.apps}/${c.count} (${pct.toFixed(0)}%)</span></div>
+          <div class="progress-item-bar"><span style="width:${Math.max(pct, c.apps?2:0)}%; background:${meta.color}"></span></div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  eoProgressChart.appendChild(row);
+  cats.forEach(c => {
+    if (!c.count) return;
+    const node = row.querySelector(`.progress-item[data-cat="${c.id}"]`);
+    if (!node) return;
+    node.classList.add('clickable');
+    node.tabIndex = 0; node.setAttribute('role','button');
+    const handler = () => {
+      const list = cases.filter(cc => cc.division === o.division && cc.category === c.id && cc.applicationDate);
+      const meta = CATEGORY_META[c.id];
+      openDrill(`${meta.tag} target achieved — Division ${o.division} (${o.name})`, `${c.apps} of ${c.count} applications received`, list,
+        'No applications received yet for this officer in this category.');
+    };
+    node.addEventListener('click', handler);
+    node.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); handler(); } });
   });
 });
 

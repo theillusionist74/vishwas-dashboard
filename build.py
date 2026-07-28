@@ -43,6 +43,23 @@ def fetch_csv(gid):
     return list(csv.reader(io.StringIO(data)))
 
 
+def fetch_csv_by_name(sheet_name):
+    """Fetch a tab by its name rather than a numeric gid, for tabs that
+    don't exist yet (so we don't need to know a gid in advance). Google's
+    gviz endpoint silently falls back to a DIFFERENT sheet if the name
+    isn't found instead of erroring, so the caller must sanity-check the
+    header row before trusting the result."""
+    import urllib.parse
+    q = urllib.parse.quote(sheet_name)
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={q}"
+    try:
+        with urllib.request.urlopen(url, timeout=30) as resp:
+            data = resp.read().decode("utf-8-sig")
+        return list(csv.reader(io.StringIO(data)))
+    except Exception:
+        return None
+
+
 def num(x):
     x = (x or "").replace(",", "").strip()
     if x in ("", "-", "_"):
@@ -55,6 +72,86 @@ def num(x):
 
 def real_rows(rows, div_col):
     return [r for r in rows if len(r) > div_col and r[div_col].strip().isdigit()]
+
+
+def fmt_app_date(raw):
+    """Application date is stamped as a 12-digit YYMMDDHHMMSS string
+    (e.g. '260722122608' -> 22-07-2026 12:26). Falls back to the raw
+    text unchanged for any other format (e.g. a plain DD-MM-YYYY date
+    entered by hand)."""
+    raw = (raw or "").strip()
+    if len(raw) == 12 and raw.isdigit():
+        yy, mo, dd, hh, mi = raw[0:2], raw[2:4], raw[4:6], raw[6:8], raw[8:10]
+        return f"{dd}-{mo}-20{yy} {hh}:{mi}"
+    return raw
+
+
+def application_stage(app_date, da_date, ss_date, apfc_date, approval_date):
+    """Derive where an application currently sits from the four receipt-
+    stamp columns the office added. An application only exists at all if
+    app_date is set; otherwise there's nothing to stage."""
+    if not app_date:
+        return ""
+    if approval_date:
+        return "Approved"
+    if apfc_date:
+        return "Pending at APFC"
+    if ss_date:
+        return "Pending at SS"
+    if da_date:
+        return "Pending at DA"
+    return "Pending at DA"  # received but not yet logged at any level
+
+
+def read_outreach():
+    """Reads the "Outreach Activity" tab if the office has created it yet
+    (one row per division: Division, Name, Emails Sent, SMS Sent, Physical
+    Seminars, Online Webinars, Employers Participated, Employees
+    Participated, Employers Contacted Personally). Returns [] if the tab
+    doesn't exist yet or doesn't look like the right shape."""
+    rows = fetch_csv_by_name("Outreach Activity")
+    if not rows or len(rows) < 2:
+        return []
+    header = [c.strip().lower() for c in rows[0]]
+    if "division" not in header or not any("email" in h for h in header):
+        return []  # gviz fell back to some other tab - not the one we want
+
+    def col(*names):
+        for i, h in enumerate(header):
+            for n in names:
+                if n in h:
+                    return i
+        return None
+
+    idx = {
+        "division": col("division"),
+        "name": col("name"),
+        "emails": col("emails sent", "no of emails", "no. of emails"),
+        "sms": col("sms sent", "no of sms", "no. of sms"),
+        "seminars": col("physical seminar"),
+        "webinars": col("online webinar"),
+        "employersParticipated": col("employers participated"),
+        "employeesParticipated": col("employees participated"),
+        "employersContacted": col("contacted personally"),
+    }
+    out = []
+    for r in rows[1:]:
+        div = r[idx["division"]].strip() if idx["division"] is not None and len(r) > idx["division"] else ""
+        if not div or not div.isdigit():
+            continue
+        def get(key):
+            i = idx[key]
+            return num(r[i]) if i is not None and len(r) > i else 0
+        out.append({
+            "division": div,
+            "name": r[idx["name"]].strip() if idx["name"] is not None and len(r) > idx["name"] else "",
+            "emails": get("emails"), "sms": get("sms"),
+            "seminars": get("seminars"), "webinars": get("webinars"),
+            "employersParticipated": get("employersParticipated"),
+            "employeesParticipated": get("employeesParticipated"),
+            "employersContacted": get("employersContacted"),
+        })
+    return out
 
 
 def main():
@@ -74,60 +171,83 @@ def main():
 
     # Category I columns: 2 DA, 3 EO, 4 Div, 5 Estt code, 6 Estt name, 9 Legal
     # Forum, 10 Case No, 13 14B assessed, 14 14B remitted, 18 7Q status,
-    # 20 email sent, 21 sms sent, 22 application date.
+    # 20 email sent, 21 sms sent, 22 Application Id, 23 application date,
+    # 24 DA receipt date, 25 SS receipt date, 26 APFC receipt date,
+    # 28 approval date, 36 date of withdrawal of petition.
     for r in cat1:
         estt = r[5].strip()
         is_sample = estt in SAMPLE_ESTT_CODES
+        app_date = "" if is_sample else r[23].strip()
+        da_date, ss_date, apfc_date = r[24].strip(), r[25].strip(), r[26].strip()
+        approval_date = r[28].strip() if len(r) > 28 else ""
         cases.append({
             "category": "cat1", "division": r[4].strip(), "eo": r[3].strip(),
             "estt": estt, "esttName": r[6].strip(),
             "legalForum": r[9].strip(), "caseNo": r[10].strip(),
             "da": r[2].strip(),
             "email": bool(r[20].strip()), "sms": bool(r[21].strip()),
-            "applicationDate": "" if is_sample else r[22].strip(),
+            "applicationDate": fmt_app_date(app_date),
+            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
+            "withdrawalDate": r[36].strip() if len(r) > 36 else "",
             "status7q": r[18].strip(),
             "assessed": num(r[13]), "remit14b": num(r[14]),
         })
 
     # Category II columns: 2 DA, 3 EO, 4 Div, 5 Estt code, 6 Estt name,
-    # 18 email sent, 20 application date. No reliable 14B/7Q figures at
-    # this stage (see build notes) - status7q carried through for display
-    # only, never used for Vishwas-eligibility (Category I only, below).
+    # 18 email sent, 20 Application Id, 21 application date, 22 DA receipt,
+    # 23 SS receipt, 24 APFC receipt, 26 approval date. No reliable 14B/7Q
+    # figures at this stage (see build notes) - status7q carried through
+    # for display only, never used for Vishwas-eligibility (Category I only).
     for r in cat2:
         estt = r[5].strip()
         is_sample = estt in SAMPLE_ESTT_CODES
+        app_date = "" if is_sample else r[21].strip()
+        da_date, ss_date, apfc_date = r[22].strip(), r[23].strip(), r[24].strip()
+        approval_date = r[26].strip() if len(r) > 26 else ""
         cases.append({
             "category": "cat2", "division": r[4].strip(), "eo": r[3].strip(),
             "estt": estt, "esttName": r[6].strip(),
             "legalForum": "", "caseNo": "",
             "da": r[2].strip(),
             "email": bool(r[18].strip()), "sms": False,
-            "applicationDate": "" if is_sample else r[20].strip(),
+            "applicationDate": fmt_app_date(app_date),
+            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
+            "withdrawalDate": "",
             "status7q": r[17].strip(),
             "assessed": 0, "remit14b": 0,
         })
 
     # Category III columns: 2 DA, 3 EO, 4 Div, 5 Estt code, 6 Estt name,
-    # 18 email sent, 19 sms sent, 20 application date.
+    # 18 email sent, 19 sms sent, 20 application date (no Application Id
+    # column in this sheet), 21 DA receipt, 22 SS receipt, 23 APFC receipt,
+    # 25 approval date.
     for r in cat3:
         estt = r[5].strip()
         is_sample = estt in SAMPLE_ESTT_CODES
+        app_date = "" if is_sample else r[20].strip()
+        da_date, ss_date, apfc_date = r[21].strip(), r[22].strip(), r[23].strip()
+        approval_date = r[25].strip() if len(r) > 25 else ""
         cases.append({
             "category": "cat3", "division": r[4].strip(), "eo": r[3].strip(),
             "estt": estt, "esttName": r[6].strip(),
             "legalForum": "", "caseNo": "",
             "da": r[2].strip(),
             "email": bool(r[18].strip()), "sms": bool(r[19].strip()),
-            "applicationDate": "" if is_sample else r[20].strip(),
+            "applicationDate": fmt_app_date(app_date),
+            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
+            "withdrawalDate": "",
             "status7q": r[17].strip(),
             "assessed": 0, "remit14b": 0,
         })
+
+    outreach = read_outreach()
 
     data = {
         "asOf": datetime.date.today().strftime("%d %b %Y"),
         "roster": roster,
         "cases": cases,
         "cat4Count": len(cat4),
+        "outreach": outreach,
     }
 
     with open(os.path.join(BASE, "template.html"), encoding="utf-8") as f:
@@ -147,12 +267,18 @@ def main():
         f.write(html)
 
     eligible = sum(1 for c in cases if c["category"] == "cat1" and c["status7q"] == "Fully Remitted")
+    stages = {}
+    for c in cases:
+        if c["applicationStage"]:
+            stages[c["applicationStage"]] = stages.get(c["applicationStage"], 0) + 1
     print(f"Built {out_path} ({len(html)} chars) — as of {data['asOf']}")
     print(f"Totals: {len(cases)} cases, "
           f"{sum(1 for c in cases if c['email'] or c['sms'])} outreach, "
           f"{sum(1 for c in cases if c['da'])} DA-assigned, "
           f"{sum(1 for c in cases if c['applicationDate'])} applications, "
           f"{eligible} Vishwas-eligible (Cat I, 7Q fully remitted)")
+    print(f"Application stages: {stages or 'none yet'}")
+    print(f"Outreach Activity tab: {'found, ' + str(len(outreach)) + ' division rows' if outreach else 'not found yet'}")
 
 
 if __name__ == "__main__":
