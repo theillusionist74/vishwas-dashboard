@@ -454,10 +454,6 @@
         <span class="callout-icon">i</span>
         <span>This isn't in the register yet. Add a tab named exactly <b>"Outreach Activity"</b> (or use the "Outreach" tab format, one metric per row under each division) — the boxes below will fill in automatically once it exists.</span>
       </div>
-      <div class="callout neu" id="outreach-novalue-callout" style="display:none;">
-        <span class="callout-icon">i</span>
-        <span>Your <b>"Outreach"</b> tab is set up for all 13 divisions, but no counts have been entered yet — it only has metric labels (Venue, Employers participated, etc.) with nothing in the number column beside them. Fill in a value next to each row and these boxes will update automatically.</span>
-      </div>
       <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);" id="outreach-grid">
         <div class="kpi clickable tile-blue" id="oa-emails-box">
           <div class="kpi-label">Emails Sent</div>
@@ -1183,7 +1179,6 @@ bindClickable(document.getElementById('as-apfc-box'), () => openDrill('Pending a
   const anyValues = tabExists && metrics.some(m => sum(m.key) > 0);
 
   document.getElementById('outreach-missing-callout').style.display = tabExists ? 'none' : 'flex';
-  document.getElementById('outreach-novalue-callout').style.display = (tabExists && !anyValues) ? 'flex' : 'none';
 
   metrics.forEach(m => {
     const box = document.getElementById(m.id + '-box');
@@ -1199,7 +1194,7 @@ bindClickable(document.getElementById('as-apfc-box'), () => openDrill('Pending a
       .map(o => `<tr><td class="mono officer-div">${o.division}</td><td class="officer-name">${OFFICER_NAMES[o.division] || o.name}</td>${o.venue ? `<td>${o.venue}</td>` : '<td class="na">—</td>'}<td class="num mono">${indianFmt(o[m.key])}</td></tr>`);
     bindClickable(box, () => openDrillTable(m.title, `${indianFmt(sum(m.key))} total across ${outreach.length} divisions`,
       ['Div', 'Officer', 'Venue', m.title], rows,
-      anyValues ? 'No divisions have logged this yet.' : 'No counts have been entered against this metric yet — see the note above.'));
+      anyValues ? 'No divisions have logged this yet.' : 'No counts have been entered against this metric yet.'));
   });
 })();
 
