@@ -850,7 +850,7 @@ const OFFICERS = computeOfficers();
 const EO_GROUPS = computeEOGroups();
 const DAS = computeDAs();
 const DA_UNASSIGNED_CAT2 = cases.filter(c => c.category === 'cat2' && !c.da).length;
-const VISHWAS_ELIGIBLE = cases.filter(c => c.category === 'cat1' && c.status7q === 'Fully Remitted');
+const VISHWAS_ELIGIBLE = cases.filter(c => c.status7q === 'Fully Remitted');
 
 const GRAND = {
   total: CATEGORIES.reduce((a,c)=>a+c.count,0),
@@ -1049,11 +1049,17 @@ function openMetricBreakdown(group, catId){
 }
 
 /* ================= OVERVIEW TAB ================= */
-document.getElementById('eligible-count').innerHTML = VISHWAS_ELIGIBLE.length + '<small>Category I</small>';
-bindClickable(document.getElementById('eligible-box'), () => openDrill(
-  '7Q Remitted Cases', `${VISHWAS_ELIGIBLE.length} case${VISHWAS_ELIGIBLE.length===1?'':'s'} — §7Q fully remitted (Category I only; the only category with reliable interest-remittance data today)`,
-  VISHWAS_ELIGIBLE, 'No cases currently have §7Q fully remitted.'
-));
+{
+  const eligibleCats = [...new Set(VISHWAS_ELIGIBLE.map(c => c.category))]
+    .sort()
+    .map(id => CATEGORY_META[id].tag.replace('CATEGORY ', ''));
+  const eligibleCatsLabel = eligibleCats.length ? eligibleCats.join(', ') : 'None yet';
+  document.getElementById('eligible-count').innerHTML = VISHWAS_ELIGIBLE.length + '<small>' + eligibleCatsLabel + '</small>';
+  bindClickable(document.getElementById('eligible-box'), () => openDrill(
+    '7Q Remitted Cases', `${VISHWAS_ELIGIBLE.length} case${VISHWAS_ELIGIBLE.length===1?'':'s'} — §7Q fully remitted, across categories ${eligibleCatsLabel}`,
+    VISHWAS_ELIGIBLE, 'No cases currently have §7Q fully remitted.'
+  ));
+}
 
 document.getElementById('ov-total').textContent = GRAND.total;
 document.getElementById('ov-total-sub').textContent =

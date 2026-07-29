@@ -318,7 +318,7 @@ def main():
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    eligible = sum(1 for c in cases if c["category"] == "cat1" and c["status7q"] == "Fully Remitted")
+    eligible = sum(1 for c in cases if c["status7q"] == "Fully Remitted")
     stages = {}
     for c in cases:
         if c["applicationStage"]:
@@ -328,7 +328,7 @@ def main():
           f"{sum(1 for c in cases if c['email'] or c['sms'])} outreach, "
           f"{sum(1 for c in cases if c['da'])} DA-assigned, "
           f"{sum(1 for c in cases if c['applicationDate'])} applications, "
-          f"{eligible} Vishwas-eligible (Cat I, 7Q fully remitted)")
+          f"{eligible} Vishwas-eligible (7Q fully remitted, any category)")
     print(f"Application stages: {stages or 'none yet'}")
     print(f"Outreach Activity tab: {'found, ' + str(len(outreach)) + ' division rows' if outreach else 'not found yet'}")
 
