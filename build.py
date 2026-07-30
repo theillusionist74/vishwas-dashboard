@@ -165,6 +165,13 @@ def read_outreach():
         name_cell = r[c_name].strip() if c_name is not None and len(r) > c_name else ""
         if div_cell.isdigit():
             cur_div, cur_name = div_cell, name_cell
+        elif name_cell and name_cell != cur_name:
+            # A new officer's block started but its Division cell is blank
+            # (a data-entry gap in the sheet) - stop attributing rows to
+            # whatever division came before, since that would silently
+            # corrupt an unrelated division's totals. Skip this block
+            # entirely until a row with a real division number appears.
+            cur_div, cur_name = None, name_cell
         if not cur_div:
             continue
         detail = (r[c_detail].strip().lower() if c_detail is not None and len(r) > c_detail else "")
