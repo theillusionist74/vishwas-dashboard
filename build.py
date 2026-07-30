@@ -19,6 +19,7 @@ import datetime
 import io
 import json
 import os
+import re
 import urllib.request
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +30,7 @@ GIDS = {
     "cat3": "96316066",
     "cat4": "507110994",
     "roster": "1133137544",
+    "outreach": "1221557974",
 }
 # Confirmed sample/test rows to exclude from application-workflow figures
 # (base case data on these rows is real and IS kept; only the Vishwas
@@ -113,11 +115,18 @@ def read_outreach():
     metric's total is the SUM across all of that row's day-columns, not a
     single fixed "value" column. Division/Name are only filled on the first
     row of each division's block and blank on the rows below it, so we
-    track the "current" division while scanning down.
+    track the "current" division while scanning down. Officers holding an
+    additional-charge division have BOTH division numbers merged into one
+    cell, e.g. "506 & 507" - kept as-is as the "division" key rather than
+    split, since we can't tell how to divide their totals between the two.
+
+    Fetched by gid (not by tab name via gviz): gviz's by-name lookup does
+    NOT reliably return values from merged cells like "506 & 507" (they
+    come back blank), while the direct CSV export by gid does.
 
     Returns [] if the tab doesn't exist yet or doesn't look like this shape.
     """
-    rows = fetch_csv_by_name("Outreach")
+    rows = fetch_csv(GIDS["outreach"])
     if not rows or len(rows) < 2:
         return []
 
@@ -163,7 +172,10 @@ def read_outreach():
     for r in rows[header_row_idx + 1:]:
         div_cell = r[c_div].strip() if c_div is not None and len(r) > c_div else ""
         name_cell = r[c_name].strip() if c_name is not None and len(r) > c_name else ""
-        if div_cell.isdigit():
+        if re.search(r"\d", div_cell):
+            # Accepts both a plain division number ("501") and a combined
+            # additional-charge cell ("506 & 507") - either way, any digit
+            # present means this row starts a new division block.
             cur_div, cur_name = div_cell, name_cell
         elif name_cell and name_cell != cur_name:
             # A new officer's block started but its Division cell is blank
