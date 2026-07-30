@@ -152,7 +152,14 @@ def read_outreach():
     c_name = col("name")
     c_detail = col("outreach details")
     c_date = col("date")
-    value_start = (c_date + 1) if c_date is not None else 5  # day-columns start right after DATE
+    # Day-columns start wherever the sub-row right below the header first
+    # has a value (that row is nothing but day-by-day date labels, e.g.
+    # "15-Jul-2026", one per column) - detecting it this way instead of
+    # assuming a fixed offset from the "DATE" header text survives the
+    # sheet being reshuffled (the exact offset has already changed once).
+    date_subrow = rows[header_row_idx + 1] if len(rows) > header_row_idx + 1 else []
+    value_start = next((i for i, c in enumerate(date_subrow) if c.strip()),
+                        (c_date if c_date is not None else 5))
 
     LABEL_MAP = {
         "venue": "venue",
@@ -161,9 +168,7 @@ def read_outreach():
         "establishments identified": "establishmentsIdentified",
         "emails sent": "emails",
         "sms sent": "sms",
-        "physical seminar": "seminars",
-        "online webinar": "webinars",
-        "contacted personally": "employersContacted",
+        "contacted over phone": "employersContacted",
     }
 
     by_div = {}
@@ -193,6 +198,17 @@ def read_outreach():
                                 "employersParticipated": 0, "employeesParticipated": 0,
                                 "employersContacted": 0, "establishmentsIdentified": 0}
             order.append(cur_div)
+        if "mode of outreach" in detail:
+            # This row logs the word SEMINAR or WEBINAR per day (text, not
+            # a count) - so a metric's total here is how many days say
+            # each word, not a numeric sum.
+            for c in r[value_start:]:
+                v = c.strip().lower()
+                if "seminar" in v:
+                    by_div[cur_div]["seminars"] += 1
+                elif "webinar" in v:
+                    by_div[cur_div]["webinars"] += 1
+            continue
         for label, key in LABEL_MAP.items():
             if label in detail:
                 if key == "venue":

@@ -482,7 +482,7 @@
           <div class="kpi-sub">in seminars / webinars</div>
         </div>
         <div class="kpi clickable tile-blue" id="oa-contacted-box">
-          <div class="kpi-label">Employers Contacted Personally</div>
+          <div class="kpi-label">Establishments Contacted Over Phone</div>
           <div class="kpi-value" id="oa-contacted">—</div>
         </div>
         <div class="kpi clickable tile-green" id="oa-identified-box">
@@ -1172,7 +1172,7 @@ bindClickable(document.getElementById('as-apfc-box'), () => openDrill('Pending a
     {id:'oa-webinars', key:'webinars', title:'Online Webinars Conducted'},
     {id:'oa-empPart', key:'employersParticipated', title:'Employers Participated'},
     {id:'oa-eeePart', key:'employeesParticipated', title:'Employees Participated'},
-    {id:'oa-contacted', key:'employersContacted', title:'Employers Contacted Personally'},
+    {id:'oa-contacted', key:'employersContacted', title:'Establishments Contacted Over Phone'},
     {id:'oa-identified', key:'establishmentsIdentified', title:'Establishments Identified Eligible'},
   ];
   const sum = key => outreach.reduce((a, o) => a + (o[key] || 0), 0);
