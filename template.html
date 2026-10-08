@@ -682,7 +682,7 @@
             <td class="num mono" id="rv-foot-apps"></td>
             <td class="num mono">0</td>
             <td class="num mono">0</td>
-            <td class="num mono">0</td>
+            <td class="num mono" id="rv-foot-cert"></td>
           </tr>
         </tfoot>
       </table>
@@ -781,6 +781,7 @@ function computeCategories(){
       sms: rows.filter(c => c.sms).length,
       da: rows.filter(c => c.da).length,
       apps: rows.filter(c => c.applicationDate).length,
+      cert: rows.filter(c => c.certificateDate).length,
     };
   });
 }
@@ -863,6 +864,7 @@ const STAGE_DA_LIST = cases.filter(c => c.applicationStage === 'Pending at DA');
 const STAGE_SS_LIST = cases.filter(c => c.applicationStage === 'Pending at SS');
 const STAGE_APFC_LIST = cases.filter(c => c.applicationStage === 'Pending at APFC');
 const STAGE_APPROVED_LIST = cases.filter(c => c.applicationStage === 'Approved');
+const CERT_LIST = cases.filter(c => c.certificateDate);
 {
   const c4 = CATEGORIES.find(c => c.id === 'cat4');
   document.getElementById('footer-cat4-note').textContent = c4.count
@@ -907,7 +909,9 @@ function caseRow(c){
     <td>${c.da || '<span class="na">—</span>'}</td>
     <td>${c.email ? '<span class="pill good"><i></i>Emailed</span>' : '<span class="pill neutral"><i></i>No contact</span>'}${c.sms ? ' <span class="pill good"><i></i>SMS</span>' : ''}</td>
     <td>${c.applicationDate
-        ? `<span class="pill good"><i></i>${c.applicationDate}</span>${c.applicationStage ? `<div class="case-sub">${c.applicationStage}</div>` : ''}`
+        ? `<span class="pill good"><i></i>${c.applicationDate}</span>${c.certificateDate
+            ? `<div class="case-sub">Certificate issued ${c.certificateDate}</div>`
+            : c.applicationStage ? `<div class="case-sub">${c.applicationStage}</div>` : ''}`
         : '<span class="pill neutral"><i></i>Not applied</span>'}</td>
     <td>${statusPill(c.status7q)}</td>
   </tr>`;
@@ -1121,8 +1125,8 @@ const funnelStages = [
     emptyNote:"No Vishwas applications have been received in office yet."},
   {label:"Approved by APFC", value: STAGE_APPROVED_LIST.length, color:"var(--crit)", list: STAGE_APPROVED_LIST,
     emptyNote:"No applications have reached APFC approval yet."},
-  {label:"Certificate issued", value: 0, color:"var(--crit)", list: [],
-    emptyNote:"Not tracked in the register yet — add a \"Certificate issued date\" column to enable this."},
+  {label:"Certificate issued", value: CERT_LIST.length, color:"var(--crit)", list: CERT_LIST,
+    emptyNote:"No Vishwas certificates have been issued yet."},
 ];
 const funnelEl = document.getElementById('funnel');
 const funnelMax = funnelStages[0].value;
@@ -1145,10 +1149,11 @@ document.getElementById('as-total').textContent = APPS_LIST.length;
 bindClickable(document.getElementById('as-total-box'), () => openDrill('Applications Received', `${APPS_LIST.length} of ${GRAND.total} — EO target achieved`, APPS_LIST,
   'No Vishwas applications have been received in office yet.'));
 
-document.getElementById('as-cert').textContent = '—';
-document.getElementById('as-cert-sub').textContent = 'Not yet tracked';
-bindClickable(document.getElementById('as-cert-box'), () => openDrill('Certificate Generated', '', [],
-  'Not tracked in the register yet — add a "Certificate issued date" column to enable this.'));
+document.getElementById('as-cert').textContent = CERT_LIST.length;
+document.getElementById('as-cert-sub').textContent = `of ${APPS_LIST.length} application${APPS_LIST.length===1?'':'s'}`;
+bindClickable(document.getElementById('as-cert-box'), () => openDrill('Certificate Generated',
+  `${CERT_LIST.length} Vishwas certificate${CERT_LIST.length===1?'':'s'} issued`, CERT_LIST,
+  'No Vishwas certificates have been issued yet.'));
 
 document.getElementById('as-da').textContent = STAGE_DA_LIST.length;
 bindClickable(document.getElementById('as-da-box'), () => openDrill('Pending at DA', `${STAGE_DA_LIST.length} application${STAGE_DA_LIST.length===1?'':'s'}`, STAGE_DA_LIST,
@@ -1421,7 +1426,7 @@ reviewTbody.innerHTML = CATEGORIES.map(c => `
     <td class="num mono">${c.apps}</td>
     <td class="num mono">0</td>
     <td class="num mono">0</td>
-    <td class="num mono">0</td>
+    <td class="num mono">${c.cert}</td>
   </tr>
 `).join('');
 reviewTbody.querySelectorAll('tr').forEach(tr => {
@@ -1432,10 +1437,13 @@ reviewTbody.querySelectorAll('tr').forEach(tr => {
 document.getElementById('rv-foot-total').textContent = GRAND.total;
 document.getElementById('rv-foot-outreach').textContent = GRAND.email;
 document.getElementById('rv-foot-apps').textContent = GRAND.apps;
+document.getElementById('rv-foot-cert').textContent = CERT_LIST.length;
 bindClickable(document.getElementById('review-foot-row'), () => openDrill('All eligible establishments', `${GRAND.total} across Categories I–IV`, cases));
 
 const cat1Count = (CATEGORIES.find(c => c.id === 'cat1') || {count:0}).count;
 const cat1Cases = cases.filter(c => c.category === 'cat1');
+const cat1Certified = cat1Cases.filter(c => c.certificateDate);
+const cat1Withdrawn = cat1Certified.filter(c => c.withdrawalDate);
 const KPIS = [
   {title:"Outreach to eligible establishments", weight:20, value: pct(OUTREACH_LIST.length, GRAND.total), status:"measured",
     list: OUTREACH_LIST, sub: `${OUTREACH_LIST.length} of ${GRAND.total} contacted`},
@@ -1443,11 +1451,19 @@ const KPIS = [
     list: [], emptyNote:"No applications have been received yet, so none are with a DA to process."},
   {title:"Amount communicated within 20 days", weight:25, value: null, status:"No applications received yet",
     list: [], emptyNote:"No applications have been received yet."},
-  {title:"Certificate issued within 3 days", weight:10, value: null, status:"No approvals yet",
-    list: [], emptyNote:"No Vishwas certificates have been issued yet."},
-  {title:"Litigation withdrawal filed", weight:25, value: 0,
-    status: `0 of ${cat1Count} Category I cases (none certified yet)`,
-    list: cat1Cases, sub: `${cat1Count} Category I litigation cases — this KPI applies once any of them are certified`},
+  {title:"Certificate issued within 3 days", weight:10, value: null,
+    status: CERT_LIST.length
+      ? `${CERT_LIST.length} certificate${CERT_LIST.length===1?'':'s'} issued — 3-day timeliness not yet measured`
+      : "No certificates issued yet",
+    list: CERT_LIST, sub: `${CERT_LIST.length} certificate${CERT_LIST.length===1?'':'s'} issued`,
+    emptyNote:"No Vishwas certificates have been issued yet."},
+  cat1Certified.length
+    ? {title:"Litigation withdrawal filed", weight:25, value: pct(cat1Withdrawn.length, cat1Certified.length),
+        status: `${cat1Withdrawn.length} of ${cat1Certified.length} certified Category I case${cat1Certified.length===1?'':'s'} have filed withdrawal`,
+        list: cat1Certified, sub: `${cat1Certified.length} certified Category I case${cat1Certified.length===1?'':'s'}`}
+    : {title:"Litigation withdrawal filed", weight:25, value: 0,
+        status: `0 of ${cat1Count} Category I cases (none certified yet)`,
+        list: cat1Cases, sub: `${cat1Count} Category I litigation cases — this KPI applies once any of them are certified`},
 ];
 const scorecard = document.getElementById('kpi-scorecard');
 scorecard.innerHTML = KPIS.map((k,i) => {

@@ -94,6 +94,7 @@ CASE_COLUMNS = {
     "apfcDate": ["submission by apfc", "receipt at apfc"],
     "approval": ["approval date"],
     "withdrawal": ["withdr"],
+    "certificate": ["issue of certificate"],
 }
 
 
@@ -118,7 +119,8 @@ def parse_category(rows, cat_id):
         if len(r) <= c_div or not r[c_div].strip().isdigit():
             continue
         estt = get(r, "estt")
-        app_date = "" if estt in SAMPLE_ESTT_CODES else get(r, "appDate")
+        is_sample = estt in SAMPLE_ESTT_CODES
+        app_date = "" if is_sample else get(r, "appDate")
         out.append({
             "category": cat_id, "division": r[c_div].strip(), "eo": get(r, "eo"),
             "estt": estt, "esttName": get(r, "esttName"),
@@ -129,6 +131,7 @@ def parse_category(rows, cat_id):
             "applicationStage": application_stage(app_date, get(r, "daDate"), get(r, "ssDate"),
                                                   get(r, "apfcDate"), get(r, "approval")),
             "withdrawalDate": get(r, "withdrawal"),
+            "certificateDate": "" if is_sample else get(r, "certificate"),
             "status7q": get(r, "status7q"),
             "assessed": num(get(r, "assessed")), "remit14b": num(get(r, "remit14b")),
         })
