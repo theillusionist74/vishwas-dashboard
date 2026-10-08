@@ -72,8 +72,67 @@ def num(x):
         return 0.0
 
 
-def real_rows(rows, div_col):
-    return [r for r in rows if len(r) > div_col and r[div_col].strip().isdigit()]
+# Each case field -> header text fragments that identify its column (first
+# match wins). Columns are looked up by header text rather than fixed
+# position because the office keeps inserting columns into these tabs, and
+# fixed indices silently shifted onto the wrong data every time they did.
+CASE_COLUMNS = {
+    "da": ["da concerned"],
+    "eo": ["name of the eo"],
+    "estt": ["estt code"],
+    "esttName": ["estt name"],
+    "legalForum": ["legal forum"],
+    "caseNo": ["case no"],
+    "assessed": ["14b assessed amount"],
+    "remit14b": ["14b remitted amount"],
+    "status7q": ["7q (fully"],
+    "email": ["date of email sent"],
+    "sms": ["date of sms sent"],
+    "appDate": ["application date"],
+    "daDate": ["submission by da", "receipt at da"],
+    "ssDate": ["submission by ss", "receipt at ss"],
+    "apfcDate": ["submission by apfc", "receipt at apfc"],
+    "approval": ["approval date"],
+    "withdrawal": ["withdr"],
+}
+
+
+def parse_category(rows, cat_id):
+    """One case record per row whose DIVISION cell is a number. Fields a
+    tab doesn't have (e.g. Legal Forum outside Category I) come out blank."""
+    header_idx = next((i for i in range(min(5, len(rows)))
+                       if "division" in [c.strip().lower() for c in rows[i]]), None)
+    if header_idx is None:
+        return []
+    header = [c.strip().lower() for c in rows[header_idx]]
+    c_div = header.index("division")
+    cols = {field: next((i for n in needles for i, h in enumerate(header) if n in h), None)
+            for field, needles in CASE_COLUMNS.items()}
+
+    def get(r, field):
+        i = cols[field]
+        return r[i].strip() if i is not None and len(r) > i else ""
+
+    out = []
+    for r in rows[header_idx + 1:]:
+        if len(r) <= c_div or not r[c_div].strip().isdigit():
+            continue
+        estt = get(r, "estt")
+        app_date = "" if estt in SAMPLE_ESTT_CODES else get(r, "appDate")
+        out.append({
+            "category": cat_id, "division": r[c_div].strip(), "eo": get(r, "eo"),
+            "estt": estt, "esttName": get(r, "esttName"),
+            "legalForum": get(r, "legalForum"), "caseNo": get(r, "caseNo"),
+            "da": get(r, "da"),
+            "email": bool(get(r, "email")), "sms": bool(get(r, "sms")),
+            "applicationDate": fmt_app_date(app_date),
+            "applicationStage": application_stage(app_date, get(r, "daDate"), get(r, "ssDate"),
+                                                  get(r, "apfcDate"), get(r, "approval")),
+            "withdrawalDate": get(r, "withdrawal"),
+            "status7q": get(r, "status7q"),
+            "assessed": num(get(r, "assessed")), "remit14b": num(get(r, "remit14b")),
+        })
+    return out
 
 
 def fmt_app_date(raw):
@@ -227,106 +286,9 @@ def main():
         for r in roster_rows if len(r) >= 2 and r[0].strip()
     ]
 
-    cat1 = real_rows(fetch_csv(GIDS["cat1"])[2:], 4)
-    cat2 = real_rows(fetch_csv(GIDS["cat2"])[2:], 4)
-    cat3 = real_rows(fetch_csv(GIDS["cat3"])[2:], 4)
-    cat4 = real_rows(fetch_csv(GIDS["cat4"])[2:], 4)
-
     cases = []
-
-    # Category I columns: 2 DA, 3 EO, 4 Div, 5 Estt code, 6 Estt name, 9 Legal
-    # Forum, 10 Case No, 13 14B assessed, 14 14B remitted, 18 7Q status,
-    # 20 email sent, 21 sms sent, 22 Application Id, 23 application date,
-    # 24 DA receipt date, 25 SS receipt date, 26 APFC receipt date,
-    # 28 approval date, 36 date of withdrawal of petition.
-    for r in cat1:
-        estt = r[5].strip()
-        is_sample = estt in SAMPLE_ESTT_CODES
-        app_date = "" if is_sample else r[23].strip()
-        da_date, ss_date, apfc_date = r[24].strip(), r[25].strip(), r[26].strip()
-        approval_date = r[28].strip() if len(r) > 28 else ""
-        cases.append({
-            "category": "cat1", "division": r[4].strip(), "eo": r[3].strip(),
-            "estt": estt, "esttName": r[6].strip(),
-            "legalForum": r[9].strip(), "caseNo": r[10].strip(),
-            "da": r[2].strip(),
-            "email": bool(r[20].strip()), "sms": bool(r[21].strip()),
-            "applicationDate": fmt_app_date(app_date),
-            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
-            "withdrawalDate": r[36].strip() if len(r) > 36 else "",
-            "status7q": r[18].strip(),
-            "assessed": num(r[13]), "remit14b": num(r[14]),
-        })
-
-    # Category II columns: 2 DA, 3 EO, 4 Div, 5 Estt code, 6 Estt name,
-    # 18 email sent, 20 Application Id, 21 application date, 22 DA receipt,
-    # 23 SS receipt, 24 APFC receipt, 26 approval date. No reliable 14B/7Q
-    # figures at this stage (see build notes) - status7q carried through
-    # for display only, never used for Vishwas-eligibility (Category I only).
-    for r in cat2:
-        estt = r[5].strip()
-        is_sample = estt in SAMPLE_ESTT_CODES
-        app_date = "" if is_sample else r[21].strip()
-        da_date, ss_date, apfc_date = r[22].strip(), r[23].strip(), r[24].strip()
-        approval_date = r[26].strip() if len(r) > 26 else ""
-        cases.append({
-            "category": "cat2", "division": r[4].strip(), "eo": r[3].strip(),
-            "estt": estt, "esttName": r[6].strip(),
-            "legalForum": "", "caseNo": "",
-            "da": r[2].strip(),
-            "email": bool(r[18].strip()), "sms": False,
-            "applicationDate": fmt_app_date(app_date),
-            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
-            "withdrawalDate": "",
-            "status7q": r[17].strip(),
-            "assessed": 0, "remit14b": 0,
-        })
-
-    # Category III columns: 2 DA, 3 EO, 4 Div, 5 Estt code, 6 Estt name,
-    # 18 email sent, 19 sms sent, 20 application date (no Application Id
-    # column in this sheet), 21 DA receipt, 22 SS receipt, 23 APFC receipt,
-    # 25 approval date.
-    for r in cat3:
-        estt = r[5].strip()
-        is_sample = estt in SAMPLE_ESTT_CODES
-        app_date = "" if is_sample else r[20].strip()
-        da_date, ss_date, apfc_date = r[21].strip(), r[22].strip(), r[23].strip()
-        approval_date = r[25].strip() if len(r) > 25 else ""
-        cases.append({
-            "category": "cat3", "division": r[4].strip(), "eo": r[3].strip(),
-            "estt": estt, "esttName": r[6].strip(),
-            "legalForum": "", "caseNo": "",
-            "da": r[2].strip(),
-            "email": bool(r[18].strip()), "sms": bool(r[19].strip()),
-            "applicationDate": fmt_app_date(app_date),
-            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
-            "withdrawalDate": "",
-            "status7q": r[17].strip(),
-            "assessed": 0, "remit14b": 0,
-        })
-
-    # Category IV columns: same layout as Category III - 2 DA, 3 EO, 4 Div,
-    # 5 Estt code, 6 Estt name, 17 status7q, 18 email sent, 19 sms sent,
-    # 20 application date, 21 DA receipt, 22 SS receipt, 23 APFC receipt,
-    # 25 approval date.
-    for r in cat4:
-        estt = r[5].strip()
-        is_sample = estt in SAMPLE_ESTT_CODES
-        app_date = "" if is_sample else r[20].strip()
-        da_date, ss_date, apfc_date = r[21].strip(), r[22].strip(), r[23].strip()
-        approval_date = r[25].strip() if len(r) > 25 else ""
-        cases.append({
-            "category": "cat4", "division": r[4].strip(), "eo": r[3].strip(),
-            "estt": estt, "esttName": r[6].strip(),
-            "legalForum": "", "caseNo": "",
-            "da": r[2].strip(),
-            "email": bool(r[18].strip()), "sms": bool(r[19].strip()),
-            "applicationDate": fmt_app_date(app_date),
-            "applicationStage": application_stage(app_date, da_date, ss_date, apfc_date, approval_date),
-            "withdrawalDate": "",
-            "status7q": r[17].strip(),
-            "assessed": 0, "remit14b": 0,
-        })
+    for cat_id in ("cat1", "cat2", "cat3", "cat4"):
+        cases.extend(parse_category(fetch_csv(GIDS[cat_id]), cat_id))
 
     outreach = read_outreach()
 
